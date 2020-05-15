@@ -9,7 +9,7 @@ const firebaseConfig = {
   autDomain: "oasys-1eaa0.firebaseapp.com",
   databaseURL: "https://1eaa0.firebaseio.com",
   projectId: "oasys-1eaa0",
-  storageBucket: "",
+  storageBucket: "gs://oasys-1eaa0.appspot.com",
 }
 
 firebase.initializeApp(firebaseConfig);
@@ -44,9 +44,9 @@ class App extends React.Component {
 
   render(){
       return(
-        <NavigationContainer>
-          <WelcomeNavigation />
-        </NavigationContainer>
+        
+          <AddDocument />
+        
       );
   }
 
