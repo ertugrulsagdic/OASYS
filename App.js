@@ -1,13 +1,13 @@
 import 'react-native-gesture-handler';
 import React from 'react';
-import {StyleSheet} from 'react-native';
+import {StyleSheet, YellowBox} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import * as firebase from "firebase";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDWY2HUpFPGCctPTfdRmp3dPggSb2jpYNU",
   autDomain: "oasys-1eaa0.firebaseapp.com",
-  databaseURL: "https://1eaa0.firebaseio.com",
+  databaseURL: "https://oasys-1eaa0.firebaseio.com",
   projectId: "oasys-1eaa0",
   storageBucket: "gs://oasys-1eaa0.appspot.com",
 }
@@ -39,13 +39,15 @@ import PostBulkMessage from './src/screens/Lecture/PostBulkMessage';
 import EditClass from './src/screens/Lecture/EditClass';
 import WelcomeNavigation from './src/screens/navigations/WelcomeNavigation';
 
+YellowBox.ignoreWarnings(['Setting a timer']);
+
 
 class App extends React.Component {
 
   render(){
       return(
         
-          <AddDocument />
+          <CreateClass />
         
       );
   }
