@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import { StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, Keyboard } from "react-native";
+import { StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, Keyboard, Alert } from "react-native";
 import Button from "react-native-button";
 import {Avatar} from 'react-native-elements';
 import { AppStyles } from "../../AppStyles";
@@ -12,24 +12,53 @@ const SignupScreen = props => {
     const [email, setEmail] = useState({ value: ""});
     const [password, setPassword] = useState({ value: ""});
 
-     
+    const [username, setusername] = useState('')
+    const [userType, setUserType] = useState('') 
+
+    const rootRef = firebase.database().ref();
+    const classesRef = rootRef.child("User");
+
     const handleSignUp = () => {
-        firebase
-          .auth()
-          .createUserWithEmailAndPassword(email.value, password.value)
-          .then(() => props.navigation.navigate('Login'))
-         
+        
+        try{
+            if(password.length < 8){
+                alert('Please enter 8 characters')
+            }
+
+            if(password.length < 8){
+                alert('Please enter 8 characters')
+            }
+
+            classesRef.push(
+                {
+                    username: username, 
+                    userType: userType, 
+                    email: email, 
+                    password:password, 
+                    attendace: 0, 
+                }
+            ).then(Alert.alert('User signed up'));
+
+            firebase
+            .auth()
+            .createUserWithEmailAndPassword(email.value, password.value)
+            .then(() => props.navigation.navigate('Login'))
+            
+        }
+        catch(error){
+            console.log(error.toString())    
+        }
+
     }
-    
 
     const [sizeStudent, setSizeStudent] = useState('medium');
     const [sizeProfessor, setSizeProfessor] = useState('medium');
-
 
     const studentAvatarHandler = () => {
         if(sizeStudent == 'medium'){
             setSizeProfessor('medium');
             setSizeStudent('large');
+            setUserType('Student')
         }
         else{
             setSizeStudent('medium');
@@ -41,6 +70,7 @@ const SignupScreen = props => {
         if(sizeProfessor == 'medium'){
             setSizeProfessor('large');
             setSizeStudent('medium');
+            setUserType('Lecturer')
         }
         else{
             setSizeProfessor('medium');
@@ -82,6 +112,8 @@ const SignupScreen = props => {
                         placeholder="Full Name"
                         placeholderTextColor={AppStyles.color.grey}
                         underlineColorAndroid="transparent"
+                        value={username}
+                        onChangeText={username => setusername(username)}
                     />
                 </View>
                 <View style={styles.InputContainer}>
@@ -110,7 +142,7 @@ const SignupScreen = props => {
                 </View>
                 <Button
                 containerStyle={[styles.signupContainer, { marginTop: 50 }]}
-                style={styles.signupText} onPress={() => props.navigation.navigate('Login')}
+                style={styles.signupText} onPress={handleSignUp}
                 >
                 Sign Up
                 </Button>

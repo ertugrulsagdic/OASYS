@@ -22,7 +22,7 @@ import SignupScreen from './src/screens/Auth/SignupScreen'
 import Attendance from './src/screens/Student/Attendance'
 import Announcement from './src/screens/Announcement'
 import CommentScreen from './src/screens/CommentScreen';
-import LectureDocuments from './src/screens/LectureDocuments';
+import LectureDocuments from './src/screens/Lecture/LectureDocuments';
 import StudentList from './src/screens/Lecture/StudentList';
 import StudentTabs from './src/screens/Student/StudentTabs';
 import StudentClasses from './src/screens/Student/StudentClasses';
@@ -47,7 +47,9 @@ class App extends React.Component {
   render(){
       return(
         
-          <CreateClass />
+          <NavigationContainer>
+            <WelcomeNavigation />
+          </NavigationContainer>
         
       );
   }

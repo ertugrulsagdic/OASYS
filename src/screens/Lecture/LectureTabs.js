@@ -7,25 +7,12 @@ import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import StudentList from './StudentList'
 import Announcement from '../Announcement'
-import LectureDocuments from '../LectureDocuments';
-import LecturerAssignment from './LecturerAssignment';
+import LectureDocuments from './LectureDocuments';
 import CreateQR from './CreateQR'
-
-import PostBulkMessage from './PostBulkMessage';
-import CommentScreen from '../CommentScreen';
+import LectureAssignment from './LectureAssignment';
 
 const Tab = createBottomTabNavigator();
 const AnnouncementStack = createStackNavigator();
-
-const AnnouncementNavigation = () => {
-  return(
-    <AnnouncementStack.Navigator>
-      <AnnouncementStack.Screen name='Announcement' component={Announcement} options={{ headerShown: false }} />
-      <AnnouncementStack.Screen name='Post' component={PostBulkMessage} />
-      <AnnouncementStack.Screen name='Comments' component={CommentScreen} />
-    </AnnouncementStack.Navigator>
-  );
-}
 
 export default function () {
   return (
@@ -66,11 +53,11 @@ export default function () {
             inactiveTintColor: 'gray',
           }}
       >
-        <Tab.Screen name="Announcement" component={AnnouncementNavigation} />
+        <Tab.Screen name="Announcement" component={Announcement} />
         <Tab.Screen name="Student List" component={StudentList} />
         <Tab.Screen name="Create Qr Code" component={CreateQR} />
         <Tab.Screen name="Lecture Documents" component={LectureDocuments} />
-        <Tab.Screen name="Assignment" component={LecturerAssignment} />
+        <Tab.Screen name="Assignment" component={LectureAssignment} />
       </Tab.Navigator>
   );
 }

@@ -14,6 +14,9 @@ import Animated from 'react-native-reanimated';
 import StudentClasses from './StudentClasses'
 import StudentTabs from './StudentTabs'
 import AddClass from './AddClass'
+import PostQuestion from './PostQuestion';
+import CommentScreen from '../CommentScreen';
+import SubmitAssignment from './SubmitAssignment';
 
 
 const classData = [
@@ -43,6 +46,9 @@ const Screens = () => {
         <Stack.Navigator >
             <Stack.Screen name="Screens" component={DrawerScreens} options={{ headerShown: false }}/>
             <Stack.Screen name="Add Class" component={AddClass} />
+            <Stack.Screen name='Post' component={PostQuestion} />
+            <Stack.Screen name='Comments' component={CommentScreen} />
+            <Stack.Screen name='Submit' component={SubmitAssignment} />
         </Stack.Navigator>
     );
 }

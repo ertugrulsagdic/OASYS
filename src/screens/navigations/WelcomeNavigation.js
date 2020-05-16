@@ -17,7 +17,7 @@ export default class WelcomeNavigation extends React.Component {
 
     render(){
         return(
-            <WelcomeStack.Navigator initialRouteName='Lecture'>
+            <WelcomeStack.Navigator initialRouteName='Welcome'>
                 <WelcomeStack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />
                 <WelcomeStack.Screen name="Login" component={LoginScreen} />
                 <WelcomeStack.Screen name="Forgot" component={ForgotPassword} />

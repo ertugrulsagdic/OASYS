@@ -78,6 +78,7 @@ import Avatar from 'react-native-user-avatar';
           <Text style={{marginLeft: 150, marginTop: -10, fontSize:15}} >%{percentage * 100}</Text>
         </Card>
         <FlatList
+        contentContainerStyle={{ paddingBottom: 20}}
           data={postData}
           renderItem={({item}) => <Post props={item} /> }
           keyExtractor={post => post.id}

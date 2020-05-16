@@ -1,8 +1,12 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
+import React, {useState} from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, YellowBox} from 'react-native';
 import { Card, Button } from 'react-native-elements';
 import Entypo from 'react-native-vector-icons/Entypo';
+import Modal from 'react-native-modal';
 
+YellowBox.ignoreWarnings([
+    'Warning: isMounted(...) is deprecated', 'Module RCTImageLoader'
+  ]);
 
 const LectureClasses = (props) => {
 
@@ -25,18 +29,30 @@ const LectureClasses = (props) => {
         },
     ]
 
+    const [isModalVisible, setModalVisible] = useState(false);
+  
+    const toggleModal = () => {
+        setModalVisible(!isModalVisible);
+    };
+
+    const navigateEditClass = (props) => {
+        setModalVisible(!isModalVisible);
+        props.navigation.navigate('Edit')
+    };
+
     const Class = ({data}) => {
         return(
             <TouchableOpacity 
                 onPress={
                     () => {props.navigation.navigate('Class', { name: data.name.toString() })}
                 }
+                
             >
                 <Card containerStyle={{ borderRadius:10, backgroundColor: data.theme, width:'90%'}}>
                     <View style={{flexDirection:'row', justifyContent:'space-between'}}>
                         <Text style={styles.textName}>{data.name}</Text>
                         <Button
-                        containerStyle={styles.button}
+                            containerStyle={styles.button}
                             type='clear'
                             icon={
                                 <Entypo 
@@ -45,7 +61,29 @@ const LectureClasses = (props) => {
                                     size={15} 
                                 />
                             }
+                            onPress={toggleModal}
                         />
+                        <Modal isVisible={isModalVisible}>
+                            <View >
+                                <Button 
+                                    containerStyle={{marginBottom:20}} 
+                                    title="Edit Class" 
+                                    onPress={() => {navigateEditClass(props)}}
+                                     
+                                />
+                                <Button 
+                                    containerStyle={{marginBottom:20}} 
+                                    title="Delete Class" 
+                                    onPress={() => {toggleModal}} 
+                                />
+                                <Button 
+                                    containerStyle={{marginBottom:20}} 
+                                    buttonStyle={{backgroundColor: "red"}} 
+                                    title="Close" 
+                                    onPress={toggleModal} 
+                                />
+                            </View>
+                        </Modal>
                     </View>
                     <Text style={styles.textField}>{data.courseField}</Text>
                     <Text style={styles.textIns}>{data.instructue}</Text>
@@ -98,7 +136,7 @@ const styles = StyleSheet.create({
     },
     button:{
         position: 'absolute',
-                right: 5,
+        right: 5,
                 top: 5,
     }
     

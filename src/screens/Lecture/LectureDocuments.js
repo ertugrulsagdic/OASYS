@@ -1,9 +1,9 @@
 import React from 'react';
-import { Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
-import { Card, Divider, SearchBar } from 'react-native-elements'
+import { Text, StyleSheet, TouchableOpacity, FlatList, View } from 'react-native';
+import { Card, Divider, SearchBar, Button } from 'react-native-elements'
 import Entypo from 'react-native-vector-icons/Entypo'
 
-export default class LectureDocuments extends React.Component {
+const LectureDocuments = (props) => {
 
     documentList= [
         {
@@ -36,22 +36,6 @@ export default class LectureDocuments extends React.Component {
         search: '',
     };
 
-
-    Header = () => {
-
-        return(
-            <SearchBar 
-                placeholder='Search Document'
-                lightTheme
-                round
-                editable={true}
-                onChangeText={this.updateSearch}
-                value={this.state.search}
-            />            
-        );
-    }
-
-
     Document = ({props}) =>{
         return(
             <Card containerStyle={{ margin: 20, borderRadius:10, width:'90%'}}>
@@ -72,16 +56,35 @@ export default class LectureDocuments extends React.Component {
         
     }
 
-    render() {
         return (
-        <FlatList
-                ListHeaderComponent={this.Header}
-                data={this.documentList}
-                renderItem={({item}) => <this.Document props={item} /> }
-                keyExtractor={document => document.id}
-        /> 
+            <View style={{flex:1}}>
+                <SearchBar 
+                        placeholder='Search Document'
+                        lightTheme
+                        round
+                        editable={true}
+                        onChangeText={this.updateSearch}
+                        value={this.state.search}
+                /> 
+                <Button
+                    title='Add Document'
+                    containerStyle={{margin:20, width:'88%'}}
+                    buttonStyle={{borderRadius:10,}}
+                    color='white'
+                    onPress={
+                        () => {props.navigation.navigate('AddDocument')}
+                    }
+                 />
+                 <View style={{flex:1}}> 
+                    <FlatList
+                        contentContainerStyle={{ paddingBottom: 20}}
+                        data={this.documentList}
+                        renderItem={({item}) => <this.Document props={item} /> }
+                        keyExtractor={document => document.id}
+                /> 
+                </View>
+            </View>
     );
-    }
     
 };
 
@@ -95,3 +98,5 @@ const styles = StyleSheet.create({
         fontSize:30,
     }
 }); 
+
+export default LectureDocuments;

@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, View, StyleSheet, TouchableOpacity, FlatList } from "react-native";
+import { Text, View, StyleSheet, TouchableOpacity, FlatList, Keyboard, TouchableWithoutFeedback } from "react-native";
 import { Card, Input, Divider } from 'react-native-elements';
 import Button from 'react-native-button/Button';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -49,12 +49,12 @@ const Announcement = (props) => {
     }
   }
 
-  const Comment = (props) => {
+  const Comment = (data) => {
 
     return(
       <View>
-          <TouchableOpacity style={{ margin: 10 }}>
-            <DisplayComment comment={props.comment} />
+          <TouchableOpacity style={{ margin: 10 }} onPress={() => props.navigation.navigate('Comments')}>
+            <DisplayComment comment={data.comment} />
           </TouchableOpacity>
           <Divider style={{ backgroundColor: 'black' }} />
         </View>
@@ -74,7 +74,7 @@ const Announcement = (props) => {
           <Divider style={{ backgroundColor: 'black' }} />
           <Text style={{ marginVertical: 10, fontSize: 17 }}> {props.post} </Text>
           <Divider style={{ backgroundColor: 'black' }} />     
-          <Comment comment={props.comment} />
+          <Comment data={props.comment} />
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Input 
               placeholder='Add Comment' 
@@ -93,19 +93,23 @@ const Announcement = (props) => {
   return (
     <View style={styles.container}>
       <View style={{ margin: 30, marginBottom: 0 }}>
-        <Input 
-          placeholder='Share your question with class' 
-          leftIcon={
-            <Icon name='question' size={24} color='black'/>
-          }  
-          onTouchStart={() => props.navigation.navigate('Post')}
-        />
+          <Input 
+            placeholder='Share your question with class' 
+            leftIcon={
+              <Icon name='question' size={24} color='black'/>
+            }  
+            onTouchStart={() => props.navigation.navigate('Post')}
+            showSoftInputOnFocus={false}
+          />
       </View>
+      <View style={{flex:1}}>
         <FlatList 
+          contentContainerStyle={{ paddingBottom: 20}}
           data={postData}
           renderItem={({item}) => <Post props={item} /> }
           keyExtractor={post => post.id}
-        />     
+        /> 
+        </View>    
     </View>
   );
 }

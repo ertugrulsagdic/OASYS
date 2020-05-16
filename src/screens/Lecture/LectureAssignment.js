@@ -1,11 +1,11 @@
 import React from "react";
-import { Text, View, StyleSheet,TouchableHighlight, Alert, FlatList} from "react-native";
-import  {Card, Input} from 'react-native-elements';
+import { Text, View, StyleSheet,TouchableOpacity, Alert, FlatList} from "react-native";
+import  {Card, Button} from 'react-native-elements';
 
 import Icon from "react-native-vector-icons/Entypo";
 
 
-  const LectureAssignment = () => {
+  const LectureAssignment = (props) => {
     
     const postData = [
       {
@@ -32,29 +32,39 @@ import Icon from "react-native-vector-icons/Entypo";
   
  
   
-    const Post = ({props}) => {
+    const Post = ({data}) => {
       return(
-          <View>
-           <TouchableHighlight   underlayColor='transparent' onPress={() => { }}>
-            <Card containerStyle={{margin:30}}>
+           <TouchableOpacity   
+              onPress ={() => props.navigation.navigate('Assignments')}
+            >
+            <Card containerStyle={{margin:20}}>
                  <Icon name="text-document" style={styles.icon2}></Icon>
                   <Text style={{marginLeft:50}}>
-                     {props.name} 
+                     {data.name} 
                   </Text>
-                  <Text style={{marginLeft:50}}>{props.post}</Text>
+                  <Text style={{marginLeft:50}}>{data.post}</Text>
                   <Icon name="export" style={styles.icon4}></Icon>
             </Card>
-            </TouchableHighlight>
-            </View>
+            </TouchableOpacity>
 
         );
     }
 
     return (
-      <View>
+      <View style={{flex:1}}>
+        <Button
+                    title='Add Assignment'
+                    containerStyle={{margin:20, width:'88%'}}
+                    buttonStyle={{borderRadius:10,}}
+                    color='white'
+                    onPress={
+                        () => {props.navigation.navigate('PostAssignment')}
+                    }
+                 />
         <FlatList 
+          contentContainerStyle={{ paddingBottom: 20}}
           data={postData}
-          renderItem={({item}) => <Post props={item} /> }
+          renderItem={({item}) => <Post data={item} /> }
           keyExtractor={post => post.id}
         />    
       </View>

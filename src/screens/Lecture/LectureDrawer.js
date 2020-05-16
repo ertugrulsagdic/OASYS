@@ -15,6 +15,14 @@ import LectureClasses from './LectureClasses';
 import LectureTabs from './LectureTabs';
 import CreateClass from './CreateClass';
 
+import PostBulkMessage from './PostBulkMessage';
+import CommentScreen from '../CommentScreen';
+import LecturerAssignment from './LecturerAssignment'
+import AddDocument from './AddDocument';
+import PostAssignment from './PostAssignment';
+import EditClass from './EditClass';
+
+
 const classData = [
     {
         id: '1',
@@ -35,6 +43,12 @@ const Screens = () => {
         <Stack.Navigator >
             <Stack.Screen name="Screens" component={DrawerScreens} options={{ headerShown: false }}/>
             <Stack.Screen name="Create Class" component={CreateClass} />
+            <Stack.Screen name='Post' component={PostBulkMessage} />
+            <Stack.Screen name='Comments' component={CommentScreen} />
+            <Stack.Screen name='Assignments' component={LecturerAssignment} />
+            <Stack.Screen name='AddDocument' component={AddDocument} />
+            <Stack.Screen name='PostAssignment' component={PostAssignment} />
+            <Stack.Screen name='Edit' component={EditClass} />
         </Stack.Navigator>
     );
 }
