@@ -7,18 +7,44 @@ import * as firebase from "firebase";
 
 const LoginScreen = (props) => {
 
+  const [user, setUser] = useState();
+
   const [email, setEmail] = useState({ value: ""});
   const [password, setPassword] = useState({ value: ""});
 
-  const user = 'Lecture'
+  const [userType, setUserType] = useState('')
 
+  const rootRef = firebase.database().ref();
+  const userRef = rootRef.child("User");
 
   const handleLogin = () => {
-    firebase
-      .auth()
-      .signInWithEmailAndPassword(email.value, password.value)
-      .then(() => props.navigation.navigate('Classes'))
-   
+
+    const query = userRef.orderByChild('email').equalTo(email.value)
+    
+    query.once('value').then(snapshot => {
+      snapshot.forEach(child => {
+          firebase
+        .auth()
+        .signInWithEmailAndPassword(email.value, password.value)
+        .then(
+          () => props.navigation.navigate(child.val().userType))
+        .catch(error => {
+          switch (error.code) {
+            case 'auth/wrong-password':
+              alert('Password is invalid!')
+              break;
+            case 'auth/invalid-email':
+              alert(`Email address ${email.value} is invalid.`);
+              break;
+            case 'auth/user-not-found':
+              alert(`User with ${email.value} does not found!`);
+              break;
+            default:
+              console.log(error.message);
+          }
+        })
+      })
+    }) 
   }
 
         return(
@@ -50,7 +76,7 @@ const LoginScreen = (props) => {
                     </View>
                     <Button
                         containerStyle={styles.loginContainer}
-                        style={styles.loginText} onPress={() => props.navigation.navigate(user)}
+                        style={styles.loginText} onPress={handleLogin}
                     >
                         Log in
                     </Button>

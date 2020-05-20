@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import { StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, Keyboard, Alert } from "react-native";
+import { StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, Keyboard, Alert, KeyboardAvoidingView, Platform } from "react-native";
 import Button from "react-native-button";
 import {Avatar} from 'react-native-elements';
 import { AppStyles } from "../../AppStyles";
@@ -12,37 +12,83 @@ const SignupScreen = props => {
     const [email, setEmail] = useState({ value: ""});
     const [password, setPassword] = useState({ value: ""});
 
-    const [username, setusername] = useState('')
+    const [username, setusername] = useState({ value: ""})
     const [userType, setUserType] = useState('') 
 
     const rootRef = firebase.database().ref();
-    const classesRef = rootRef.child("User");
+    const userRef = rootRef.child("User/");
 
     const handleSignUp = () => {
         
         try{
-            if(password.length < 8){
+
+            if(password.value.length < 8){
                 alert('Please enter 8 characters')
+                return;
             }
 
-            if(password.length < 8){
-                alert('Please enter 8 characters')
+            if(userType == ''){
+                alert('Please select user type')
+                return;
             }
 
-            classesRef.push(
-                {
-                    username: username, 
-                    userType: userType, 
-                    email: email, 
-                    password:password, 
-                    attendace: 0, 
-                }
-            ).then(Alert.alert('User signed up'));
 
             firebase
             .auth()
             .createUserWithEmailAndPassword(email.value, password.value)
-            .then(() => props.navigation.navigate('Login'))
+            .then(() => {
+                userRef.push(
+                    {
+                        username: username.value, 
+                        userType: userType, 
+                        email: email.value, 
+                        attendace: 0, 
+                    }
+                    ).then(
+                        Alert.alert(
+                            "Welcome to family",
+                            "You have successfully signed up",
+                            [
+                            { text: "OK", onPress: () => {
+                                props.navigation.navigate('Login')
+                                setUserType('');
+                                setusername({value:''});
+                                setEmail({value:''});
+                                setPassword({value:''});
+                                setSizeStudent('medium');
+                                setSizeProfessor('medium');
+                            }}
+                            ],
+                            { cancelable: false }
+                        )
+                )
+            }).catch(error => {
+                switch (error.code) {
+                   case 'auth/email-already-in-use':
+                     alert(`Email address ${email.value} already in use.`)
+                     break;
+                   case 'auth/invalid-email':
+                     alert(`Email address ${email.value} is invalid.`);
+                     break;
+                   case 'auth/operation-not-allowed':
+                     alert(`Error during sign up.`);
+                     break;
+                   case 'auth/weak-password':
+                     alert('Password is not strong enough. Add additional characters including special characters and numbers.');
+                     break;
+                   default:
+                     console.log(error.message);
+                 }
+             })
+
+
+            
+
+                   
+            
+              
+            
+        
             
         }
         catch(error){
@@ -80,7 +126,10 @@ const SignupScreen = props => {
     
     return(
         <TouchableWithoutFeedback onPress = {() => {Keyboard.dismiss()}}>
-            <View style={styles.container}>
+            <KeyboardAvoidingView 
+                style={styles.container}
+                behavior={Platform.OS == "ios" ? "padding" : "height"}
+            >
                 <Text style={styles.title}>Create new account</Text>
                 <View style = {styles.avatarContainer}>
                     <View style = {{alignItems : 'center'}}>
@@ -113,7 +162,7 @@ const SignupScreen = props => {
                         placeholderTextColor={AppStyles.color.grey}
                         underlineColorAndroid="transparent"
                         value={username}
-                        onChangeText={username => setusername(username)}
+                        onChangeText={username => setusername({ value: username})}
                     />
                 </View>
                 <View style={styles.InputContainer}>
@@ -146,7 +195,7 @@ const SignupScreen = props => {
                 >
                 Sign Up
                 </Button>
-            </View>
+            </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
     );                
     

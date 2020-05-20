@@ -27,7 +27,6 @@ import StudentList from './src/screens/Lecture/StudentList';
 import StudentTabs from './src/screens/Student/StudentTabs';
 import StudentClasses from './src/screens/Student/StudentClasses';
 import ForgotPassword from './src/screens/Auth/ForgotPassword';
-import ResetPassword from './src/screens/Auth/ResetPassword';
 import AddDocument from './src/screens/Lecture/AddDocument';
 import LectureClasses from './src/screens/Lecture/LectureClasses';
 import AddClass from './src/screens/Student/AddClass';

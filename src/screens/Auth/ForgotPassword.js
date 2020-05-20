@@ -1,14 +1,25 @@
-import React from "react";
-import { StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, Keyboard } from "react-native";
+import React, {useState} from "react";
+import { StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, Keyboard, Alert } from "react-native";
 import Button from "react-native-button";
 import {Avatar} from 'react-native-elements';
 import { AppStyles } from "../../AppStyles";
-
+import * as firebase from "firebase";
 
 const ForgotPassword = props => {
 
+  const [email, setEmail] = useState({ value: ""});
+
   const ForgotPasswordHandler = () => {
-    props.navigation.navigate('Reset')
+    firebase.auth().sendPasswordResetEmail(email.value).then(
+        Alert.alert(
+          'Email sent',
+          "Go to your mail to change password",
+          [
+          { text: "OK", onPress: () => {props.navigation.navigate('Welcome')} }
+          ],
+          { cancelable: true }
+        )
+    )
   }
 
     return(
@@ -21,11 +32,14 @@ const ForgotPassword = props => {
                     placeholder="E-mail Address"
                     placeholderTextColor={AppStyles.color.grey}
                     underlineColorAndroid="transparent"
+                    value = {email}
+                    onChangeText={email => setEmail({ value: email})}
                 />
                 </View>
                 <Button
                   containerStyle={[styles.signupContainer, { marginTop: 30 }]}
                   style={styles.signupText}
+                  
                   onPress={ForgotPasswordHandler}
                 >
                     Reset
