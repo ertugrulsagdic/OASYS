@@ -1,37 +1,51 @@
 import React from 'react';
-import { Text, StyleSheet, TouchableOpacity, FlatList, View } from 'react-native';
+import { Text, StyleSheet, TouchableOpacity, FlatList, View, Alert, Linking } from 'react-native';
 import { Card, Divider, SearchBar, Button } from 'react-native-elements'
 import Entypo from 'react-native-vector-icons/Entypo'
+import * as firebase from "firebase";
 
 const LectureDocuments = (props) => {
 
-    documentList= [
-        {
-            id: '1',
-            documentTitle: 'Syllabus',
-            satement: 'You can find the syllabus of the lecture below',
-            filemame:'syllabus.pdf'
-        },
-        {
-            id: '2',
-            documentTitle: 'Chapter 1',
-            satement: 'You can find the first chapter slide of the lecture below',
-            filemame:'chapter1.pdf'
-        },
-        {
-            id: '3',
-            documentTitle: 'Chapter 2',
-            satement: 'You can find the second chapter slide of the lecture below',
-            filemame:'chapter2.pdf'
-        },
-        {
-            id: '4',
-            documentTitle: 'Chapter 3',
-            satement: 'You can find the third chapter slide of the lecture below',
-            filemame:'chapter3.pdf'
-        },
-    ]
+    this.files = {
+        list: []
+     };
+  
+    const displayFile = () => {
+        const ref = firebase.database().ref().child('Documents');
+        ref.once('value', (snapshot) => {
+            snapshot.forEach(snapshotchild =>{
+                files.list.push({
+                    name: snapshotchild.child("name").val(),
+                    title: snapshotchild.child("title").val(),
+                    description: snapshotchild.child("description").val(),
+                    uri: snapshotchild.child("uri").val()
+                })
+             
+            })
+        })
+    }
 
+      displayFile();
+
+      const dowloandFile = (fileName) =>{
+        var ref = firebase.storage().ref().child("Documents/" + fileName);
+        ref.getDownloadURL().then(function(url) {
+            Linking.canOpenURL(url).then(supported => {
+                if (supported) {
+                  Linking.openURL(url);
+                } else {
+                  console.log("Don't know how to open URI: " + url);
+                }
+              });
+            
+            console.log(url);
+        }, function(error){
+            console.log(error);
+        });
+
+      }
+
+     
     state = {
         search: '',
     };
@@ -39,16 +53,18 @@ const LectureDocuments = (props) => {
     Document = ({props}) =>{
         return(
             <Card containerStyle={{ margin: 20, borderRadius:10, width:'90%'}}>
-                <Text style={{ fontSize: 20,}}> {props.documentTitle} </Text>
+                <Text style={{ fontSize: 20,}}> {props.title} </Text>
                 <Divider style={{ backgroundColor: 'black', marginVertical:10 }} />
-                <Text style={{ fontSize: 17, marginLeft:10}}> {props.satement} </Text>
-                <TouchableOpacity>
+                <Text style={{ fontSize: 17, marginLeft:10}}> {props.description} </Text>
+                <TouchableOpacity onPress={
+                        () => {dowloandFile(props.name)}
+                    }>
                     <Card 
                         containerStyle={{ borderRadius:40, marginLeft:25}}
                         wrapperStyle={{flexDirection:'row'}}    
                     >
                         <Entypo name='text-document' size={20} />
-                        <Text style={{marginLeft:10}}> {props.filemame} </Text>
+                        <Text style={{marginLeft:10}}> {props.name} </Text>
                     </Card>  
                 </TouchableOpacity>  
             </Card> 
@@ -78,7 +94,7 @@ const LectureDocuments = (props) => {
                  <View style={{flex:1}}> 
                     <FlatList
                         contentContainerStyle={{ paddingBottom: 20}}
-                        data={this.documentList}
+                        data={files.list}
                         renderItem={({item}) => <this.Document props={item} /> }
                         keyExtractor={document => document.id}
                 /> 

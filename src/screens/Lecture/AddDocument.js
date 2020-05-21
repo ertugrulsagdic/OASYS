@@ -13,6 +13,9 @@ const AddDocument = () => {
     const [singleFileOBJ, setsingleFileOBJ] = useState("");
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
+
+    const rootRef = firebase.database().ref();
+    const fileRef = rootRef.child("Documents");
     
     
     async function SingleFilePicker() {
@@ -41,10 +44,23 @@ const AddDocument = () => {
 
         var ref = firebase.storage().ref().child("Documents/" + fileName);
         return ref.put(blob);
-
-
+        
     }
-     
+
+    async function createFile(uri, fileName){
+
+        fileRef.orderByChild('name').equalTo(fileName).once('value')
+        .then(snapshot => {
+            if(snapshot.exists()){
+                Alert.alert('Document already exists'); 
+            }
+            else{
+                fileRef.push({title: title, description: description, name: fileName, uri: uri})
+                .then(Alert.alert('Document uploaded'));
+            }
+        })
+
+    }     
 
 
     return(
@@ -96,7 +112,7 @@ const AddDocument = () => {
                     containerStyle={{margin:20, }}
                     buttonStyle={{borderRadius:10,}}
                     color='white'
-                    onPress={() => uploadFile(singleFileOBJ.uri, singleFileOBJ.name)}
+                    onPress={() => uploadFile(singleFileOBJ.uri, singleFileOBJ.name).then(() => createFile(singleFileOBJ.uri, singleFileOBJ.name))}
                    
                 ></Button>
             </Card>
