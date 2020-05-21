@@ -3,48 +3,59 @@ import { StyleSheet, Text, TextInput, View, TouchableWithoutFeedback, Keyboard }
 import Button from "react-native-button";
 import { AppStyles } from "../../AppStyles";
 import * as firebase from "firebase";
+import { connect } from "react-redux";
+import {watchUserInfo} from '../../redux/app-redux'
 
+const mapStateToProps = (state) => {
+  return {
+    userInfo: state.userInfo
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    watchUserInfo: (email) => {dispatch(watchUserInfo(email))}
+  }
+}
 
 const LoginScreen = (props) => {
-
-  const [user, setUser] = useState();
 
   const [email, setEmail] = useState({ value: ""});
   const [password, setPassword] = useState({ value: ""});
 
-  const [userType, setUserType] = useState('')
-
-  const rootRef = firebase.database().ref();
-  const userRef = rootRef.child("User");
-
+  
   const handleLogin = () => {
 
-    const query = userRef.orderByChild('email').equalTo(email.value)
-    
-    query.once('value').then(snapshot => {
-      snapshot.forEach(child => {
-          firebase
-        .auth()
-        .signInWithEmailAndPassword(email.value, password.value)
-        .then(
-          () => props.navigation.navigate(child.val().userType))
-        .catch(error => {
-          switch (error.code) {
-            case 'auth/wrong-password':
-              alert('Password is invalid!')
-              break;
-            case 'auth/invalid-email':
-              alert(`Email address ${email.value} is invalid.`);
-              break;
-            case 'auth/user-not-found':
-              alert(`User with ${email.value} does not found!`);
-              break;
-            default:
-              console.log(error.message);
-          }
+    props.watchUserInfo(email.value)
+
+  
+    firebase
+    .auth()
+    .signInWithEmailAndPassword(email.value, password.value)
+    .then(
+      () => {
+        var user = Object.values(props.userInfo)
+        user.forEach(child => {
+          props.navigation.navigate(child.userType)
         })
+        
       })
-    }) 
+    .catch(error => {
+      switch (error.code) {
+        case 'auth/wrong-password':
+          alert('Password is invalid!')
+          break;
+        case 'auth/invalid-email':
+          alert(`Email address ${email.value} is invalid.`);
+          break;
+        case 'auth/user-not-found':
+          alert(`User with ${email.value} does not found!`);
+          break;
+        default:
+          console.log(error.message);
+      }
+    })
+
   }
 
         return(
@@ -136,4 +147,4 @@ const styles = StyleSheet.create({
     }
   });
   
-  export default LoginScreen;
+  export default connect(mapStateToProps, mapDispatchToProps)(LoginScreen);

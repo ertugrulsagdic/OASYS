@@ -5,7 +5,7 @@ import Button from "react-native-button";
 
 
 
-  const EditClass = () => {
+  const EditClass = (props) => {
 
     const className = 'Software Engineering'
     const classField = 'Computer Engineering'

@@ -3,6 +3,8 @@ import React from 'react';
 import {StyleSheet, YellowBox} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import * as firebase from "firebase";
+import { Provider } from 'react-redux'
+import { store } from './src/redux/app-redux'
 
 const firebaseConfig = {
   apiKey: "AIzaSyDWY2HUpFPGCctPTfdRmp3dPggSb2jpYNU",
@@ -45,11 +47,11 @@ class App extends React.Component {
 
   render(){
       return(
-        
+        <Provider store={store}>
           <NavigationContainer>
             <WelcomeNavigation />
           </NavigationContainer>
-        
+        </Provider>
       );
   }
 

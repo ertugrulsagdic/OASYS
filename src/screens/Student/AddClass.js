@@ -2,10 +2,37 @@ import React from "react";
 import { Text, View, StyleSheet, Alert} from "react-native";
 import  {Card, Input, Avatar, Divider} from 'react-native-elements';
 import Button from "react-native-button";
+import { connect } from "react-redux";
+import {watchUserInfo} from '../../redux/app-redux'
 
+const mapStateToProps = (state) => {
+  return {
+    userInfo: state.userInfo,
+    email: state.email
+  }
+}
 
+const mapDispatchToProps = (dispatch) => {
+  return {
+    watchUserInfo: (email) => {dispatch(watchUserInfo(email))}
+  }
+}
 
-  const AddClass = () => {
+  const AddClass = (props) => {
+
+    
+    
+    const addClass = () => {
+
+     props.watchUserInfo(props.email)
+      var user = Object.values(props.userInfo)
+      console.log(props.userInfo)
+      console.log(user.email)
+      user.forEach(child => {
+        console.log(child.username)
+      })
+      
+    }
 
     return (
       <View>
@@ -14,7 +41,7 @@ import Button from "react-native-button";
        </Card>
          <View styles={{height:50, width:50}}>
              <Button containerStyle={styles.buttonContainer} style={{color: '#708090',fontWeight: "bold", }}  
-              onPress={() => Alert.alert('Sınıfa katınıldı')}>
+              onPress={addClass}>
                 Join Class
             </Button>
         </View> 
@@ -37,4 +64,4 @@ import Button from "react-native-button";
           }
     });
   
-     export default AddClass;
+     export default connect(mapStateToProps, mapDispatchToProps)(AddClass);
