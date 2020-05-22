@@ -23,39 +23,39 @@ const LoginScreen = (props) => {
   const [email, setEmail] = useState({ value: ""});
   const [password, setPassword] = useState({ value: ""});
 
-  
+  props.watchUserInfo(email.value)
+
   const handleLogin = () => {
 
-    props.watchUserInfo(email.value)
-
-  
-    firebase
-    .auth()
-    .signInWithEmailAndPassword(email.value, password.value)
-    .then(
-      () => {
-        var user = Object.values(props.userInfo)
-        user.forEach(child => {
-          props.navigation.navigate(child.userType)
-        })
-        
-      })
-    .catch(error => {
-      switch (error.code) {
-        case 'auth/wrong-password':
-          alert('Password is invalid!')
-          break;
-        case 'auth/invalid-email':
-          alert(`Email address ${email.value} is invalid.`);
-          break;
-        case 'auth/user-not-found':
-          alert(`User with ${email.value} does not found!`);
-          break;
-        default:
-          console.log(error.message);
-      }
-    })
-
+    const userRef = firebase.database().ref("User");
+    
+        const query = userRef.orderByChild('email').equalTo(email.value)
+        query.once('value').then(snapshot => {
+            snapshot.forEach(child => {
+                firebase
+                .auth()
+                .signInWithEmailAndPassword(email.value, password.value)
+                .then(
+                  () => {
+                    props.navigation.navigate(child.val().userType)
+                  })
+                .catch(error => {
+                    switch (error.code) {
+                      case 'auth/wrong-password':
+                        alert('Password is invalid!')
+                        break;
+                      case 'auth/invalid-email':
+                        alert(`Email address ${email.value} is invalid.`);
+                        break;
+                      case 'auth/user-not-found':
+                        alert(`User with ${email.value} does not found!`);
+                        break;
+                      default:
+                        console.log(error.message);
+                    }
+                  })
+            })
+          })
   }
 
         return(

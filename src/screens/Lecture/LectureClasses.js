@@ -3,31 +3,33 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, YellowBox} from 're
 import { Card, Button } from 'react-native-elements';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Modal from 'react-native-modal';
+import * as firebase from 'firebase'
+import { connect } from "react-redux";
+import {wathUserClasses} from '../../redux/app-redux'
 
 YellowBox.ignoreWarnings([
     'Warning: isMounted(...) is deprecated', 'Module RCTImageLoader'
   ]);
 
+  const mapStateToProps = (state) => {
+    return {
+        email: state.email,
+        userClasses: state.userClasses
+    }
+  }
+  
+  const mapDispatchToProps = (dispatch) => {
+    return {
+      wathUserClasses: (email) => {dispatch(wathUserClasses(email))}
+    }
+  }
+  
+
 const LectureClasses = (props) => {
 
-    const classesList = [
-        {
-            id: '1',
-            name: 'Software Engineering  ',
-            courseField:'Computer Engineering',
-            instructue:'Berna Altinel',
-            classCode:'rBxhYsEq',
-            theme: 'lightcoral',
-        },
-        {
-            id: '2',
-            name: 'Data Structures',
-            courseField:'Computer Engineering',
-            instructue:'Berna Altinel',
-            classCode:'gTsiOPa3',
-            theme: 'deepskyblue',
-        },
-    ]
+    ///classlari cekk ve bastir ayni seyi lecrure drawerdada yap sonra class codu tiklanilan classla eslestir
+
+    const classesList = [ ]
 
     const [isModalVisible, setModalVisible] = useState(false);
   
@@ -39,6 +41,44 @@ const LectureClasses = (props) => {
         setModalVisible(!isModalVisible);
         props.navigation.navigate('Edit')
     };
+
+    const getClasses = () => {
+        const userRef = firebase.database().ref("User");
+            const query = userRef.orderByChild('email').equalTo(props.email)
+            query.once('value').then(user => {  
+            user.forEach(userChild => {
+              userChild.child('classes').forEach(classesChild => {
+                var classCode = classesChild.val().classCode
+                firebase.database().ref('Classes')
+                .orderByChild('classCode').equalTo(classCode)
+                .once('value').then(actualClass => {
+                    actualClass.forEach(classChild => {
+                        classesList.push({
+                            name: classChild.val().className,
+                            courseField: classChild.val().classField,
+                            instructue: classChild.val().instructure,
+                            classCode: classChild.val().classCode,
+                            theme: getRandomColor()
+                        })
+                        
+                    })
+                    
+                })
+              })
+            })
+          })
+    }
+
+    function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+          color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+      }
+
+    getClasses()
 
     const Class = ({data}) => {
         return(
@@ -108,7 +148,7 @@ const LectureClasses = (props) => {
             <FlatList 
                 data={classesList}
                 renderItem={({item}) => <Class data={item} /> }
-                keyExtractor={post => post.id}
+                keyExtractor={post => post.classCode}
             />     
         </View>
     );
@@ -142,4 +182,4 @@ const styles = StyleSheet.create({
     
 }); 
 
-export default LectureClasses;
+export default connect(mapStateToProps, mapDispatchToProps)(LectureClasses);

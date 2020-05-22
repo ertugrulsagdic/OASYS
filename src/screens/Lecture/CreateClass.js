@@ -3,10 +3,24 @@ import { Text, View, StyleSheet, Alert} from "react-native";
 import  {Card, Input, Avatar, Divider} from 'react-native-elements';
 import Button from "react-native-button";
 import * as firebase from "firebase";
+import { connect } from "react-redux";
+import {watchUserInfo} from '../../redux/app-redux'
+
+const mapStateToProps = (state) => {
+  return {
+    userInfo: state.userInfo,
+    email: state.email
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    watchUserInfo: (email) => {dispatch(watchUserInfo(email))}
+  }
+}
 
 
-
-  const CreateClass = () => {
+  const CreateClass = (props) => {
 
     const [className, setClassName] = useState("");
     const [classField, setClassField] = useState("");
@@ -15,6 +29,7 @@ import * as firebase from "firebase";
     const rootRef = firebase.database().ref();
     const classesRef = rootRef.child("Classes");
 
+  
     async function createClass (className, classField){
 
       if(className.trim().length == 0 || classField.trim().length == 0){
@@ -22,9 +37,39 @@ import * as firebase from "firebase";
         return;
       }
 
-      let r = Math.random().toString(36).substring(7);
-      setClassCode(r);
-      classesRef.push({name: className, field: classField, code: classCode}).then(Alert.alert('Class created with code', classCode));
+      const userRef = firebase.database().ref("User");
+      const query = userRef.orderByChild('email').equalTo(props.email)
+
+      Object.values(props.userInfo).forEach(child => {
+        let r = Math.random().toString(36).substring(7);
+        setClassCode(r);
+        classesRef.push({
+          className: className, 
+          classField: classField, 
+          classCode: classCode,
+          instructure: child.username
+        })
+      .then(
+            query.once('value').then(user => {  
+            user.forEach(userChild => {
+              userChild.child('classes').ref.push({classCode: classCode})      
+            })
+          })
+      )
+      .then(
+        Alert.alert(
+          "Class created",
+          "You have successfully created class",
+          [
+          { text: "OK", onPress: () => {
+              props.navigation.navigate('Screens')
+          }}
+          ],
+          { cancelable: false }
+      )
+      );
+      })
+
     }
     
     
@@ -67,4 +112,4 @@ import * as firebase from "firebase";
           }
     });
   
-     export default CreateClass;
+     export default connect(mapStateToProps, mapDispatchToProps)(CreateClass);

@@ -5,7 +5,7 @@ import * as firebase from 'firebase'
 //Initial State
 const initialState = {
     userInfo: { },
-    email: ''
+    email: '',
 }
 
 //Reducer
@@ -59,6 +59,5 @@ const watchUserInfo = (email) => {
     }
    
 }
-
 
 export {setUserInfo, watchUserInfo}
