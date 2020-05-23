@@ -8,7 +8,8 @@ const initialState = {
     userInfo: { },
     email: '',
     userClasses: [],
-    classCode: ''
+    classCode: '',
+    documentList: []
 }
 
 //Reducer
@@ -22,6 +23,8 @@ const reducer = (state= initialState, action) => {
             return {...state, userClasses: action.value};
         case "setClassCode":
             return {...state, classCode: action.value};
+        case "setDocumentList":
+            return {...state, documentList: action.value};
         default:
             return state;
     }
@@ -74,6 +77,13 @@ const setUserClasses = (userClasses) => {
     }
 }
 
+const setDocumentList = (documentList) =>{
+    return {
+        type: "setDocumentList",
+        value: documentList
+    }
+}
+
 const wathUserClasses = (email) => {
 
     return function ( dispatch ) {
@@ -111,6 +121,37 @@ const wathUserClasses = (email) => {
     }
 }
 
+const watchDocuments = (classCode) =>{
+console.log("girdi");
+    return function ( dispatch ) {
+
+        const documentList = []
+      
+        const classesRef = firebase.database().ref('Classes');
+        const query = classesRef.orderByChild('classCode').equalTo(classCode);
+        query.once('value').then(snapshot => {
+            snapshot.forEach(child => {
+                const ref = firebase.database().ref().child("Classes/" + child.key + "/Documents");
+                ref.once('value', (snapshot) => {
+                snapshot.forEach(snapshotchild =>{
+                    documentList.push({
+                        name: snapshotchild.child("name").val(),
+                        title: snapshotchild.child("title").val(),
+                        description: snapshotchild.child("description").val(),
+                        uri: snapshotchild.child("uri").val()
+                    })
+                    
+                })
+            })
+           
+            })
+           
+        }).then(() => {
+            dispatch(setDocumentList(documentList))
+        })
+    }
+}
+
 const setClassCode = (classCode) => {
     return {
         type: "setClassCode",
@@ -119,4 +160,4 @@ const setClassCode = (classCode) => {
 }
 
 
-export {setUserInfo, watchUserInfo, wathUserClasses, setClassCode}
+export {setUserInfo, watchUserInfo, wathUserClasses, setClassCode, watchDocuments}

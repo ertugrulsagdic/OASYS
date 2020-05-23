@@ -4,18 +4,31 @@ import { Card, Button, Divider } from 'react-native-elements';
 import Entypo from 'react-native-vector-icons/Entypo';
 import { AppStyles } from "../../AppStyles";
 import * as firebase from "firebase";
-
+import { connect } from "react-redux";
 import DocumentPicker from 'react-native-document-picker';
+import {watchUserInfo, wathUserClasses, watchDocuments} from '../../redux/app-redux'
+
+const mapStateToProps = (state) => {
+    return {
+      classCode: state.classCode
+    }
+  }
+  
+  const mapDispatchToProps = (dispatch) => {
+    return {
+      watchUserInfo: (email) => {dispatch(watchUserInfo(email))},
+      wathUserClasses: (email) => {dispatch(wathUserClasses(email))},
+      watchDocuments: (classCode) => {dispatch(watchDocuments(classCode))}
+    }
+  }
 
 
-const AddDocument = () => {
+const AddDocument = (props) => {
 
     const [singleFileOBJ, setsingleFileOBJ] = useState("");
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
 
-    const rootRef = firebase.database().ref();
-    const fileRef = rootRef.child("Documents");
     
     
     async function SingleFilePicker() {
@@ -38,16 +51,26 @@ const AddDocument = () => {
         }
     }
 
-    async function uploadFile (uri, fileName){
-        const response = await fetch(uri);
-        const blob = await response.blob();
 
-        var ref = firebase.storage().ref().child("Documents/" + fileName);
-        return ref.put(blob);
-        
+    async function findClass(uri, fileName){
+
+        ////////////////// find correct class
+        const classesRef = firebase.database().ref('Classes');
+        const query = classesRef.orderByChild('classCode').equalTo(props.classCode);
+        query.once('value').then(snapshot => {
+            snapshot.forEach(child => {
+               createFile(uri, fileName, child.key)
+            })
+
+        })
     }
+    
+    async function createFile(uri, fileName, classKey){
+        /// upload database
+        const rootRef = firebase.database().ref();
+        console.log(classKey);
+        const fileRef = rootRef.child("Classes/" + classKey + "/Documents");
 
-    async function createFile(uri, fileName){
 
         fileRef.orderByChild('name').equalTo(fileName).once('value')
         .then(snapshot => {
@@ -56,9 +79,26 @@ const AddDocument = () => {
             }
             else{
                 fileRef.push({title: title, description: description, name: fileName, uri: uri})
-                .then(Alert.alert('Document uploaded'));
+                .then(Alert.alert(
+                    "Document uploaded",
+                    "Added",
+                    [
+                    { text: "OK" , onPress: () => {
+                        props.watchDocuments(props.classCode)
+                        props.navigation.navigate('Screens')
+                    }}
+                    ],
+                    { cancelable: false }
+                ));
             }
         })
+
+       //// upload storage
+            const response = await fetch(uri);
+            const blob = await response.blob();
+    
+            var ref = firebase.storage().ref().child("Documents/" + fileName);
+            return ref.put(blob);
 
     }     
 
@@ -112,7 +152,7 @@ const AddDocument = () => {
                     containerStyle={{margin:20, }}
                     buttonStyle={{borderRadius:10,}}
                     color='white'
-                    onPress={() => uploadFile(singleFileOBJ.uri, singleFileOBJ.name).then(() => createFile(singleFileOBJ.uri, singleFileOBJ.name))}
+                    onPress={() => findClass(singleFileOBJ.uri, singleFileOBJ.name)}
                    
                 ></Button>
             </Card>
@@ -161,4 +201,4 @@ const styles = StyleSheet.create({
     
 }); 
 
-export default AddDocument;
+export default connect(mapStateToProps, mapDispatchToProps)(AddDocument);

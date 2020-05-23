@@ -1,31 +1,28 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { Text, StyleSheet, TouchableOpacity, FlatList, View, Alert, Linking } from 'react-native';
 import { Card, Divider, SearchBar, Button } from 'react-native-elements'
 import Entypo from 'react-native-vector-icons/Entypo'
 import * as firebase from "firebase";
+import { connect } from "react-redux";
+import {watchUserInfo, wathUserClasses, watchDocuments} from '../../redux/app-redux'
+
+const mapStateToProps = (state) => {
+    return {
+      classCode: state.classCode,
+      documentList: state.documentList
+    }
+  }
+  
+  const mapDispatchToProps = (dispatch) => {
+    return {
+      watchUserInfo: (email) => {dispatch(watchUserInfo(email))},
+      wathUserClasses: (email) => {dispatch(wathUserClasses(email))},
+      watchDocuments: (classCode) => {dispatch(watchDocuments(classCode))}
+    }
+  }
+
 
 const LectureDocuments = (props) => {
-
-    this.files = {
-        list: []
-     };
-  
-    const displayFile = () => {
-        const ref = firebase.database().ref().child('Documents');
-        ref.once('value', (snapshot) => {
-            snapshot.forEach(snapshotchild =>{
-                files.list.push({
-                    name: snapshotchild.child("name").val(),
-                    title: snapshotchild.child("title").val(),
-                    description: snapshotchild.child("description").val(),
-                    uri: snapshotchild.child("uri").val()
-                })
-             
-            })
-        })
-    }
-
-      displayFile();
 
       const dowloandFile = (fileName) =>{
         var ref = firebase.storage().ref().child("Documents/" + fileName);
@@ -50,21 +47,21 @@ const LectureDocuments = (props) => {
         search: '',
     };
 
-    Document = ({props}) =>{
+    Document = ({data}) =>{
         return(
             <Card containerStyle={{ margin: 20, borderRadius:10, width:'90%'}}>
-                <Text style={{ fontSize: 20,}}> {props.title} </Text>
+                <Text style={{ fontSize: 20,}}> {data.title} </Text>
                 <Divider style={{ backgroundColor: 'black', marginVertical:10 }} />
-                <Text style={{ fontSize: 17, marginLeft:10}}> {props.description} </Text>
+                <Text style={{ fontSize: 17, marginLeft:10}}> {data.description} </Text>
                 <TouchableOpacity onPress={
-                        () => {dowloandFile(props.name)}
+                        () => {dowloandFile(data.name)}
                     }>
                     <Card 
                         containerStyle={{ borderRadius:40, marginLeft:25}}
                         wrapperStyle={{flexDirection:'row'}}    
                     >
                         <Entypo name='text-document' size={20} />
-                        <Text style={{marginLeft:10}}> {props.name} </Text>
+                        <Text style={{marginLeft:10}}> {data.name} </Text>
                     </Card>  
                 </TouchableOpacity>  
             </Card> 
@@ -94,7 +91,7 @@ const LectureDocuments = (props) => {
                  <View style={{flex:1}}> 
                     <FlatList
                         contentContainerStyle={{ paddingBottom: 20}}
-                        data={files.list}
+                        data={props.documentList}
                         renderItem={({item}) => <this.Document props={item} /> }
                         keyExtractor={document => document.id}
                 /> 
@@ -115,4 +112,4 @@ const styles = StyleSheet.create({
     }
 }); 
 
-export default LectureDocuments;
+export default connect(mapStateToProps, mapDispatchToProps)(LectureDocuments);
