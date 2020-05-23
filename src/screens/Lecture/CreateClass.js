@@ -4,7 +4,7 @@ import  {Card, Input, Avatar, Divider} from 'react-native-elements';
 import Button from "react-native-button";
 import * as firebase from "firebase";
 import { connect } from "react-redux";
-import {watchUserInfo} from '../../redux/app-redux'
+import {watchUserInfo, wathUserClasses} from '../../redux/app-redux'
 
 const mapStateToProps = (state) => {
   return {
@@ -15,7 +15,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    watchUserInfo: (email) => {dispatch(watchUserInfo(email))}
+    watchUserInfo: (email) => {dispatch(watchUserInfo(email))},
+    wathUserClasses: (email) => {dispatch(wathUserClasses(email))}
   }
 }
 
@@ -62,6 +63,7 @@ const mapDispatchToProps = (dispatch) => {
           "You have successfully created class",
           [
           { text: "OK", onPress: () => {
+              props.wathUserClasses(props.email)
               props.navigation.navigate('Screens')
           }}
           ],

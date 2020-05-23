@@ -5,9 +5,26 @@ import Button from 'react-native-button/Button';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
 import Avatar from 'react-native-user-avatar';
+import { connect } from "react-redux";
+import {watchUserInfo, wathUserClasses} from '../redux/app-redux'
+
+const mapStateToProps = (state) => {
+  return {
+    classCode: state.classCode
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    watchUserInfo: (email) => {dispatch(watchUserInfo(email))},
+    wathUserClasses: (email) => {dispatch(wathUserClasses(email))}
+  }
+}
 
 
 const Announcement = (props) => {
+
+  console.log(props.classCode)
 
   const postData = [
     {
@@ -129,4 +146,4 @@ const styles = StyleSheet.create({
 });
 
 
-export default Announcement;
+export default connect(mapStateToProps, mapDispatchToProps)(Announcement);

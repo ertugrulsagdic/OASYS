@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {Image, View, Text, FlatList, Alert} from 'react-native';
 import Button from 'react-native-button/Button';
 import { 
@@ -10,6 +10,9 @@ import Feather from 'react-native-vector-icons/Feather';
 import AntDesingn from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Animated from 'react-native-reanimated';
+import * as firebase from 'firebase'
+import { connect } from "react-redux";
+import {wathUserClasses, setClassCode} from '../../redux/app-redux'
 
 import LectureClasses from './LectureClasses';
 import LectureTabs from './LectureTabs';
@@ -22,21 +25,24 @@ import AddDocument from './AddDocument';
 import PostAssignment from './PostAssignment';
 import EditClass from './EditClass';
 
+const mapStateToProps = (state) => {
+    return {
+        email: state.email,
+        userClasses: state.userClasses
+    }
+  }
+  
+  const mapDispatchToProps = (dispatch) => {
+    return {
+      wathUserClasses: (email) => {dispatch(wathUserClasses(email))},
+      setClassCode: (classCode) => {dispatch(setClassCode(classCode))}
+    }
+  }
 
-const classData = [
-    {
-        id: '1',
-        name: 'Software Engineering  ',
-    },
-    {
-        id: '2',
-        name: 'Data Structures',
-    },
-]; 
+  
 
 const Drawer =  createDrawerNavigator();
 const Stack = createStackNavigator();
-const Class = createStackNavigator();
 
 const Screens = () => {
     return(
@@ -75,7 +81,7 @@ const  DrawerScreens = ({navigation, style}) => {
     );
 }
 
-const DrawerContent = (props) => {
+const DrawerContent = ({props}) => {
 
     const ClassDrawerItem = ({data}) => {
         return(
@@ -83,7 +89,10 @@ const DrawerContent = (props) => {
                 label = {data.name.toString()}
                 labelStyle={{marginLeft: -16}}
                 onPress={
-                    () => {props.navigation.navigate('Class', { name: data.name.toString() })}
+                    () => {
+                        props.setClassCode(data.classCode)
+                        props.navigation.navigate('Class', { name: data.name.toString() })
+                    }
                 }
                 icon={() => <FontAwesome name='book' size={16} />}
             />
@@ -128,9 +137,9 @@ const DrawerContent = (props) => {
                     icon={() => <AntDesingn name='dashboard' size={16} />}
                 />
                 <FlatList 
-                        data={classData}
+                        data={props.userClasses}
                         renderItem={({item}) => <ClassDrawerItem data={item} /> }
-                        keyExtractor={classes => classes.id}
+                        keyExtractor={classes => classes.classCode}
                 /> 
             </View>
             <View style={{marginBottom:20}}>
@@ -145,7 +154,8 @@ const DrawerContent = (props) => {
     );
 };
 
-export default () => {
+const LectureDrawer = (data) => {
+
     const [progress, setProgress] = React.useState(new Animated.Value(0));
 
     const scale = Animated.interpolate(progress, {
@@ -172,7 +182,7 @@ export default () => {
             sceneContainerStyle ={{backgroundColor: 'white'}}
             drawerContent={props => {
                 setProgress(props.progress);
-                return <DrawerContent  {...props} />;
+                return <DrawerContent  {...props} props={data} />;
             }}
         >
             <Drawer.Screen name="Screens">
@@ -181,4 +191,6 @@ export default () => {
         </Drawer.Navigator>
     );
 };
+
+export default connect(mapStateToProps, mapDispatchToProps)(LectureDrawer);
 
