@@ -92,7 +92,7 @@ const LectureDocuments = (props) => {
                     <FlatList
                         contentContainerStyle={{ paddingBottom: 20}}
                         data={props.documentList}
-                        renderItem={({item}) => <this.Document props={item} /> }
+                        renderItem={({item}) => <this.Document data={item} /> }
                         keyExtractor={document => document.id}
                 /> 
                 </View>

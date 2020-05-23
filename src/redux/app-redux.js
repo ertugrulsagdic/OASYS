@@ -129,7 +129,8 @@ console.log("girdi");
       
         const classesRef = firebase.database().ref('Classes');
         const query = classesRef.orderByChild('classCode').equalTo(classCode);
-        query.once('value').then(snapshot => {
+        return query.once('value').then(snapshot => {
+            const promises = []
             snapshot.forEach(child => {
                 const ref = firebase.database().ref().child("Classes/" + child.key + "/Documents");
                 ref.once('value', (snapshot) => {
@@ -143,9 +144,9 @@ console.log("girdi");
                     
                 })
             })
-           
+            promises.push(ref)
             })
-           
+            return Promise.all(promises)
         }).then(() => {
             dispatch(setDocumentList(documentList))
         })
