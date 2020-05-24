@@ -1,47 +1,43 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
 import { Card, Button } from 'react-native-elements';
 import Entypo from 'react-native-vector-icons/Entypo';
+import Modal from 'react-native-modal';
+import { connect } from "react-redux";
+import {setClassCode} from '../../redux/app-redux'
 
+  const mapStateToProps = (state) => {
+    return {
+        userClasses: state.userClasses
+    }
+  }
+  
+  const mapDispatchToProps = (dispatch) => {
+    return {
+      setClassCode: (classCode) => {dispatch(setClassCode(classCode))}
+    }
+  }
 
 const StudentClasses = (props) => {
 
-    const classesList = [
-        {
-            id: '1',
-            name: 'Software Engineering  ',
-            courseField:'Computer Engineering',
-            instructue:'Berna Altinel',
-            theme: 'lightcoral',
-        },
-        {
-            id: '2',
-            name: 'Data Structures',
-            courseField:'Computer Engineering',
-            instructue:'Borahan Tumer',
-            theme: 'deepskyblue',
-        },
-        {
-            id: '3',
-            name: 'Algorithms',
-            courseField:'Computer Engineering',
-            instructue:'Omer Korcak',
-            theme: 'firebrick',
-        },
-        {
-            id: '4',
-            name: 'Operation Research',
-            courseField:'Computer Engineering',
-            instructue:'Ali Fuat Alkaya',
-            theme: 'indigo',
-        },
-    ]
+    const [isModalVisible, setModalVisible] = useState(false);
+  
+    const toggleModal = () => {
+        setModalVisible(!isModalVisible);
+    };
+
+    const deleteClass = () => {
+        setModalVisible(!isModalVisible);
+    };
 
     const Class = ({data}) => {
         return(
             <TouchableOpacity
                 onPress={
-                    () => {props.navigation.navigate('Class', { name: data.name.toString() })}
+                    () => {
+                        props.setClassCode(data.classCode)
+                        props.navigation.navigate('Class', { name: data.name.toString() })
+                    }
                 }
             >
                 <Card containerStyle={{ borderRadius:10, backgroundColor:data.theme, width:'90%'}}>
@@ -57,7 +53,23 @@ const StudentClasses = (props) => {
                                     size={15} 
                                 />
                             }
+                            onPress={toggleModal}
                         />
+                        <Modal isVisible={isModalVisible}>
+                            <View >
+                                <Button 
+                                    containerStyle={{marginBottom:20}} 
+                                    title="Delete Class" 
+                                    onPress={() => {deleteClass}} 
+                                />
+                                <Button 
+                                    containerStyle={{marginBottom:20}} 
+                                    buttonStyle={{backgroundColor: "red"}} 
+                                    title="Close" 
+                                    onPress={toggleModal} 
+                                />
+                            </View>
+                        </Modal>
                     </View>
                     <Text style={styles.textField}>{data.courseField}</Text>
                     <Text style={styles.textIns}>{data.instructue}</Text>
@@ -79,9 +91,9 @@ const StudentClasses = (props) => {
                     }
             />
             <FlatList 
-                data={classesList}
+                data={props.userClasses}
                 renderItem={({item}) => <Class data={item} /> }
-                keyExtractor={post => post.id}
+                keyExtractor={post => post.classCode}
             />     
         </View>
     );
@@ -115,4 +127,4 @@ const styles = StyleSheet.create({
     
 }); 
 
-export default StudentClasses;
+export default connect(mapStateToProps, mapDispatchToProps)(StudentClasses);

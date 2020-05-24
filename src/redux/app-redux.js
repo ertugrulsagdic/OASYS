@@ -122,7 +122,7 @@ const wathUserClasses = (email) => {
 }
 
 const watchDocuments = (classCode) =>{
-console.log("girdi");
+    
     return function ( dispatch ) {
 
         const documentList = []
@@ -132,8 +132,9 @@ console.log("girdi");
         return query.once('value').then(snapshot => {
             const promises = []
             snapshot.forEach(child => {
-                const ref = firebase.database().ref().child("Classes/" + child.key + "/Documents");
-                ref.once('value', (snapshot) => {
+                const ref = firebase.database().ref()
+                .child("Classes/" + child.key + "/Documents")
+                .once('value', (snapshot) => {
                 snapshot.forEach(snapshotchild =>{
                     documentList.push({
                         name: snapshotchild.child("name").val(),
@@ -141,7 +142,6 @@ console.log("girdi");
                         description: snapshotchild.child("description").val(),
                         uri: snapshotchild.child("uri").val()
                     })
-                    
                 })
             })
             promises.push(ref)

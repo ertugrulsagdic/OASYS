@@ -24,6 +24,8 @@ const mapStateToProps = (state) => {
 
 const LectureDocuments = (props) => {
 
+    props.watchDocuments(props.classCode)  
+
       const dowloandFile = (fileName) =>{
         var ref = firebase.storage().ref().child("Documents/" + fileName);
         ref.getDownloadURL().then(function(url) {
@@ -76,8 +78,8 @@ const LectureDocuments = (props) => {
                         lightTheme
                         round
                         editable={true}
-                        onChangeText={this.updateSearch}
-                        value={this.state.search}
+                        onChangeText={state.updateSearch}
+                        value={state.search}
                 /> 
                 <Button
                     title='Add Document'
@@ -92,8 +94,8 @@ const LectureDocuments = (props) => {
                     <FlatList
                         contentContainerStyle={{ paddingBottom: 20}}
                         data={props.documentList}
-                        renderItem={({item}) => <this.Document data={item} /> }
-                        keyExtractor={document => document.id}
+                        renderItem={({item}) => <Document data={item} /> }
+                        keyExtractor={document => document.name}
                 /> 
                 </View>
             </View>

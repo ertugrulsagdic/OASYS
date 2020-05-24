@@ -1,26 +1,19 @@
 import React, {useState} from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, YellowBox} from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
 import { Card, Button } from 'react-native-elements';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Modal from 'react-native-modal';
-import * as firebase from 'firebase'
 import { connect } from "react-redux";
-import {wathUserClasses, setClassCode} from '../../redux/app-redux'
-
-YellowBox.ignoreWarnings([
-    'Warning: isMounted(...) is deprecated', 'Module RCTImageLoader'
-  ]);
+import {setClassCode} from '../../redux/app-redux'
 
   const mapStateToProps = (state) => {
     return {
-        email: state.email,
         userClasses: state.userClasses
     }
   }
   
   const mapDispatchToProps = (dispatch) => {
     return {
-      wathUserClasses: (email) => {dispatch(wathUserClasses(email))},
       setClassCode: (classCode) => {dispatch(setClassCode(classCode))}
     }
   }
@@ -37,6 +30,10 @@ const LectureClasses = (props) => {
     const navigateEditClass = (props) => {
         setModalVisible(!isModalVisible);
         props.navigation.navigate('Edit')
+    };
+
+    const deleteClass = () => {
+        setModalVisible(!isModalVisible);
     };
     
     const Class = ({data}) => {
@@ -76,7 +73,7 @@ const LectureClasses = (props) => {
                                 <Button 
                                     containerStyle={{marginBottom:20}} 
                                     title="Delete Class" 
-                                    onPress={() => {toggleModal}} 
+                                    onPress={() => {deleteClass}} 
                                 />
                                 <Button 
                                     containerStyle={{marginBottom:20}} 

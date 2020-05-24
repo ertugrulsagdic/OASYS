@@ -161,7 +161,7 @@ const SignupScreen = props => {
                         placeholder="Full Name"
                         placeholderTextColor={AppStyles.color.grey}
                         underlineColorAndroid="transparent"
-                        value={username}
+                        value={username.value}
                         onChangeText={username => setusername({ value: username})}
                     />
                 </View>
@@ -172,7 +172,7 @@ const SignupScreen = props => {
                     placeholderTextColor={AppStyles.color.grey}
                     underlineColorAndroid="transparent"
                     autoCapitalize="none"
-                    value={email}
+                    value={email.value}
                     onChangeText={email => setEmail({ value: email})}
                     
                 />
@@ -185,7 +185,7 @@ const SignupScreen = props => {
                     placeholderTextColor={AppStyles.color.grey}
                     underlineColorAndroid="transparent"
                     autoCapitalize="none"
-                    value={password}
+                    value={password.value}
                     onChangeText={password => setPassword({ value: password})}
                 />
                 </View>

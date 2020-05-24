@@ -71,7 +71,7 @@ const LoginScreen = (props) => {
                             autoCapitalize="none"
                             placeholderTextColor={AppStyles.color.grey}
                             underlineColorAndroid="transparent"
-                            value={email}
+                            value={email.value}
                             onChangeText={email => setEmail({ value: email})}
                         />
                     </View>
@@ -83,7 +83,7 @@ const LoginScreen = (props) => {
                             autoCapitalize="none"
                             placeholderTextColor={AppStyles.color.grey}
                             underlineColorAndroid="transparent"
-                            value={password}
+                            value={password.value}
                             onChangeText={password => setPassword({ value: password})}
                         />
                     </View>

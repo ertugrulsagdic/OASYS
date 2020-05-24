@@ -12,7 +12,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Animated from 'react-native-reanimated';
 import * as firebase from 'firebase'
 import { connect } from "react-redux";
-import {wathUserClasses, setClassCode} from '../../redux/app-redux'
+import {setClassCode} from '../../redux/app-redux'
 
 import LectureClasses from './LectureClasses';
 import LectureTabs from './LectureTabs';
@@ -27,14 +27,12 @@ import EditClass from './EditClass';
 
 const mapStateToProps = (state) => {
     return {
-        email: state.email,
         userClasses: state.userClasses
     }
   }
   
   const mapDispatchToProps = (dispatch) => {
     return {
-      wathUserClasses: (email) => {dispatch(wathUserClasses(email))},
       setClassCode: (classCode) => {dispatch(setClassCode(classCode))}
     }
   }

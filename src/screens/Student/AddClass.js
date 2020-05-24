@@ -3,7 +3,7 @@ import { Text, View, StyleSheet, Alert} from "react-native";
 import  {Card, Input, Avatar, Divider} from 'react-native-elements';
 import Button from "react-native-button";
 import { connect } from "react-redux";
-import {watchUserInfo} from '../../redux/app-redux'
+import {watchUserInfo, wathUserClasses} from '../../redux/app-redux'
 import * as firebase from 'firebase'
 
 const mapStateToProps = (state) => {
@@ -15,7 +15,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    watchUserInfo: (email) => {dispatch(watchUserInfo(email))}
+    watchUserInfo: (email) => {dispatch(watchUserInfo(email))},
+    wathUserClasses: (email) => {dispatch(wathUserClasses(email))}
   }
 }
 
@@ -27,7 +28,7 @@ const mapDispatchToProps = (dispatch) => {
     const addClass = () => {
       //checks if the entered class code exists in the database
       if(classCode.value != ''){
-        firebase.database().ref('Classes').orderByChild('code').equalTo(classCode.value).once('value').then(actualClass => {
+        firebase.database().ref('Classes').orderByChild('classCode').equalTo(classCode.value).once('value').then(actualClass => {
           if(actualClass.exists()){
             const userRef = firebase.database().ref("User");
             const query = userRef.orderByChild('email').equalTo(props.email)
@@ -45,6 +46,7 @@ const mapDispatchToProps = (dispatch) => {
                   "You have successfully added class",
                   [
                   { text: "OK", onPress: () => {
+                      props.wathUserClasses(props.email)
                       props.navigation.navigate('Screens')
                   }}
                   ],
