@@ -42,8 +42,9 @@ const mapStateToProps = (state) => {
 const Drawer =  createDrawerNavigator();
 const Stack = createStackNavigator();
 
-const Screens = () => {
+const Screens = ({style}) => {
     return(
+    <Animated.View style={[{flex: 1, overflow: 'hidden'}, style]}>
         <Stack.Navigator >
             <Stack.Screen name="Screens" component={DrawerScreens} options={{ headerShown: false }}/>
             <Stack.Screen name="Create Class" component={CreateClass} />
@@ -54,12 +55,12 @@ const Screens = () => {
             <Stack.Screen name='PostAssignment' component={PostAssignment} />
             <Stack.Screen name='Edit' component={EditClass} />
         </Stack.Navigator>
+    </Animated.View>
     );
 }
 
-const  DrawerScreens = ({navigation, style}) => {
+const  DrawerScreens = ({navigation}) => {
     return(
-        <Animated.View style={[{flex: 1, overflow: 'hidden'}, style]}>
             <Stack.Navigator
                 screenOptions={{
                     headerLeft: () => (
@@ -75,7 +76,7 @@ const  DrawerScreens = ({navigation, style}) => {
                 <Stack.Screen name="Lecture Classes" component={LectureClasses} />
                 <Stack.Screen name='Class' component={LectureTabs} options={({ route }) => ({ title: route.params.name })}/>
             </Stack.Navigator>
-        </Animated.View>
+        
     );
 }
 

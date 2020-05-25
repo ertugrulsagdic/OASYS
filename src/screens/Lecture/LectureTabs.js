@@ -4,6 +4,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { connect } from "react-redux";
+import {watchDocuments} from '../../redux/app-redux'
 
 import StudentList from './StudentList'
 import Announcement from '../Announcement'
@@ -12,9 +14,20 @@ import CreateQR from './CreateQR'
 import LectureAssignment from './LectureAssignment';
 
 const Tab = createBottomTabNavigator();
-const AnnouncementStack = createStackNavigator();
 
-export default function () {
+const mapStateToProps = (state) => {
+  return {
+    classCode: state.classCode,
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    watchDocuments: (classCode) => {dispatch(watchDocuments(classCode))},
+  }
+}
+
+const LectureTabs = (props) => {
   return (
       <Tab.Navigator 
         screenOptions={({ route }) => ({
@@ -53,11 +66,43 @@ export default function () {
             inactiveTintColor: 'gray',
           }}
       >
-        <Tab.Screen name="Announcement" component={Announcement} />
-        <Tab.Screen name="Student List" component={StudentList} />
-        <Tab.Screen name="Create Qr Code" component={CreateQR} />
-        <Tab.Screen name="Lecture Documents" component={LectureDocuments} />
-        <Tab.Screen name="Assignment" component={LectureAssignment} />
+        <Tab.Screen 
+            name="Announcement" 
+            component={Announcement} 
+            listeners={{
+              tabPress: () => {console.log('Announcement')}
+            }}
+        />
+        <Tab.Screen 
+            name="Student List" 
+            component={StudentList}
+            listeners={{
+              tabPress: () => {console.log('Student')}
+            }}
+        />
+        <Tab.Screen 
+            name="Create Qr Code" 
+            component={CreateQR} 
+            listeners={{
+              tabPress: () => {console.log('Create qr')}
+            }}
+        />
+        <Tab.Screen 
+            name="Lecture Documents" 
+            component={LectureDocuments} 
+            listeners={{
+              tabPress: () => {props.watchDocuments(props.classCode)}
+            }}
+          />
+        <Tab.Screen 
+            name="Assignment" 
+            component={LectureAssignment} 
+            listeners={{
+              tabPress: () => {console.log('Assignment')}
+            }}
+          />
       </Tab.Navigator>
   );
 }
+
+export default connect(mapStateToProps, mapDispatchToProps)(LectureTabs)

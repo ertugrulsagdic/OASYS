@@ -28,36 +28,29 @@ const LoginScreen = (props) => {
 
   const handleLogin = () => {
 
-    const userRef = firebase.database().ref("User");
-    
-        const query = userRef.orderByChild('email').equalTo(email.value)
-        query.once('value').then(snapshot => {
-            snapshot.forEach(child => {
-                firebase
-                .auth()
-                .signInWithEmailAndPassword(email.value, password.value)
-                .then(
-                  () => {
-                    props.wathUserClasses(email.value)
-                    props.navigation.navigate(child.val().userType)
-                  })
-                .catch(error => {
-                    switch (error.code) {
-                      case 'auth/wrong-password':
-                        alert('Password is invalid!')
-                        break;
-                      case 'auth/invalid-email':
-                        alert(`Email address ${email.value} is invalid.`);
-                        break;
-                      case 'auth/user-not-found':
-                        alert(`User with ${email.value} does not found!`);
-                        break;
-                      default:
-                        console.log(error.message);
-                    }
-                  })
-            })
-          })
+    firebase
+    .auth()
+    .signInWithEmailAndPassword(email.value, password.value)
+    .then(
+      () => {
+          props.wathUserClasses(email.value)
+          props.navigation.navigate(child.val().userType)
+    })
+    .catch(error => {
+        switch (error.code) {
+          case 'auth/wrong-password':
+              alert('Password is invalid!')
+              break;
+          case 'auth/invalid-email':
+              alert(`Email address ${email.value} is invalid.`);
+              break;
+          case 'auth/user-not-found':
+              alert(`User with ${email.value} does not found!`);
+              break;
+          default:
+              console.log(error.message);
+        }
+      })            
   }
 
         return(

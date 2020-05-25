@@ -22,11 +22,11 @@ const mapStateToProps = (state) => {
   }
 
 
-const LectureDocuments = (props) => {
+const LectureDocuments = (props) => { 
 
-    props.watchDocuments(props.classCode)  
+    const [refreshing, setRefreshing] = useState(false)
 
-      const dowloandFile = (fileName) =>{
+    const dowloandFile = (fileName) =>{
         var ref = firebase.storage().ref().child("Documents/" + fileName);
         ref.getDownloadURL().then(function(url) {
             Linking.canOpenURL(url).then(supported => {
@@ -42,7 +42,13 @@ const LectureDocuments = (props) => {
             console.log(error);
         });
 
-      }
+    }
+
+    const handleRefresh = () => {
+        setRefreshing(true)
+        props.watchDocuments(props.classCode)
+        setRefreshing(false)
+    }
 
      
     state = {
@@ -78,8 +84,6 @@ const LectureDocuments = (props) => {
                         lightTheme
                         round
                         editable={true}
-                        onChangeText={state.updateSearch}
-                        value={state.search}
                 /> 
                 <Button
                     title='Add Document'
@@ -96,6 +100,8 @@ const LectureDocuments = (props) => {
                         data={props.documentList}
                         renderItem={({item}) => <Document data={item} /> }
                         keyExtractor={document => document.name}
+                        refreshing={refreshing}
+                        onRefresh={handleRefresh}
                 /> 
                 </View>
             </View>
