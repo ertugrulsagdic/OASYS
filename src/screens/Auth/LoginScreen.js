@@ -34,8 +34,16 @@ const LoginScreen = (props) => {
     .then(
       () => {
           props.wathUserClasses(email.value)
-          props.navigation.navigate(child.val().userType)
-    })
+
+          const userRef = firebase.database().ref("User");
+    
+          const query = userRef.orderByChild('email').equalTo(email.value)
+          query.once('value').then(snapshot => {
+            snapshot.forEach(child => {
+              props.navigation.navigate(child.val().userType)
+            })
+          })
+      })
     .catch(error => {
         switch (error.code) {
           case 'auth/wrong-password':

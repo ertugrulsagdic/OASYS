@@ -56,13 +56,38 @@ export default function () {
             inactiveTintColor: 'gray',
           }}
       >
-        <Tab.Screen name="Announcement">
-          {props => <Announcement {...props}/>}
-        </Tab.Screen>
-        <Tab.Screen name="Attendance" component={Attendance} />
-        <Tab.Screen name="Scan Qr Code" component={ScanQR} />
-        <Tab.Screen name="Lecture Documents" component={Documents} />
-        <Tab.Screen name="Assignment" component={Assignment} />
+        <Tab.Screen 
+            name="Announcement" 
+            component={Announcement} 
+            listeners={{
+              tabPress: () => {console.log('Announcement')}
+            }}
+          />
+        <Tab.Screen 
+            name="Attendance" 
+            component={Attendance}
+            listeners={{
+              tabPress: () => {console.log('Attendance')}
+            }}
+        />
+        <Tab.Screen 
+            name="Scan Qr Code" 
+            component={ScanQR} 
+        />
+        <Tab.Screen 
+            name="Lecture Documents" 
+            component={Documents} 
+            listeners={{
+              tabPress: () => {console.log('Lecture Documents')}
+            }}
+        />
+        <Tab.Screen 
+            name="Assignment" 
+            component={Assignment} 
+            listeners={{
+              tabPress: () => {console.log('Assignment')}
+            }}
+        />
       </Tab.Navigator>
   );
 }
