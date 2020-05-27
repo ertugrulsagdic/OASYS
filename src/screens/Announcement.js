@@ -1,111 +1,181 @@
-import React from "react";
-import { Text, View, StyleSheet, TouchableOpacity, FlatList, Keyboard, TouchableWithoutFeedback } from "react-native";
-import { Card, Input, Divider } from 'react-native-elements';
-import Button from 'react-native-button/Button';
+import React, {useState} from "react";
+import { Text, View, StyleSheet, TouchableOpacity, FlatList, ScrollView, RefreshControl } from "react-native";
+import { Card, Input, Divider, Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import Feather from 'react-native-vector-icons/Feather';
 import Avatar from 'react-native-user-avatar';
+import Entypo from 'react-native-vector-icons/Entypo';
+import Modal from 'react-native-modal';
 import { connect } from "react-redux";
-import {watchUserInfo, wathUserClasses} from '../redux/app-redux'
+import {watchAnnouncements, setPostKey, watchComments} from '../redux/app-redux'
+import * as firebase from "firebase";
 
 const mapStateToProps = (state) => {
   return {
-    classCode: state.classCode
+    classCode: state.classCode,
+    posts: state.posts,
+    username: state.username,
+    email: state.email
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    watchUserInfo: (email) => {dispatch(watchUserInfo(email))},
-    wathUserClasses: (email) => {dispatch(wathUserClasses(email))}
+    watchAnnouncements: (classCode) => {dispatch(watchAnnouncements(classCode))},
+    setPostKey: (postKey) => {dispatch(setPostKey(postKey))},
+    watchComments: (classCode, postKey) => {dispatch(watchComments(classCode, postKey))},
+
   }
 }
 
 
 const Announcement = (props) => {
+  
+  const [refreshing, setRefreshing] = useState(false)
 
-  console.log(props.classCode)
-
-  const postData = [
-    {
-      id: '1',
-      name: 'Ertugrul Sagdic',
-      post: 'The idea with React Native Elements is more about component structure than actual design.',
-      comment: 'true'
-    },
-    {
-      id: '2',
-      name: 'Melisa Donmez',
-      post: 'The idea with React Native Elements is more about component structure than actual design.',
-      comment: 'false'
-    },
-    {
-      id: '3',
-      name: 'Ekin Nohutcu',
-      post: 'The idea with React Native Elements is more about component structure than actual design.',
-      comment: 'true'
-    },
-    {
-      id: '4',
-      name: 'Berna Altinel',
-      post: 'The idea with React Native Elements is more about component structure than actual design.',
-      comment: 'false'
-    }
-  ];
-
-  const DisplayComment = (props) => {
-    if(props.comment === 'false'){
-      return(
-          <Text>No Comment</Text>
-      );
-    }
-    else{
-        return (
-            <Text>1 Comment</Text>
-      );
-    }
+  const handleRefresh = () => {
+    setRefreshing(true)
+    props.watchAnnouncements(props.classCode)
+    setRefreshing(false)
   }
 
-  const Comment = (data) => {
+  const [isModalVisible, setModalVisible] = useState(false);
+  
+    const toggleModal = () => {
+        setModalVisible(!isModalVisible);
+    };
 
-    return(
-      <View>
-          <TouchableOpacity style={{ margin: 10 }} onPress={() => props.navigation.navigate('Comments')}>
-            <DisplayComment comment={data.comment} />
-          </TouchableOpacity>
-          <Divider style={{ backgroundColor: 'black' }} />
-        </View>
-    );
-  };
+    const deletePost = (key) => {
 
-  const Post = ({props}) => {
+      const classesRef = firebase.database().ref('Classes');
+      const query = classesRef.orderByChild('classCode').equalTo(props.classCode);
+      query.once('value').then(snapshot => {
+          snapshot.forEach(child => {
+              firebase.database().ref()
+              .child("Classes/" + child.key + "/Announcements/" + key)
+              .once('value', (snapshot) => {
+                snapshot.ref.remove()
+          })
+        })
+      }).then(
+        () => {
+          props.watchAnnouncements(props.classCode)
+          setModalVisible(!isModalVisible);
+        }
+      )
+      
+    };
+
+    const PostButton = ({data}) => {
+        if(props.email == data.email){
+          return(
+            <Button
+                containerStyle={styles.button}
+                type='clear'
+                icon={
+                  <Entypo 
+                      style={styles.icon}
+                      name='dots-three-horizontal' 
+                      size={15} 
+                  />
+                }
+                  onPress={toggleModal}
+            />
+          )
+        } else {
+          return (
+            <View>
+
+            </View>
+          )
+        }
+    }
+
+  const Post = ({data}) => {
     return(
       <Card containerStyle={{ margin: 20, borderRadius:10 }}>
-          <View style={{ flexDirection: 'row' }}>
-            <Avatar 
-              style={{ marginBottom: 10, marginRight: 5 }}
-              name= {props.name}
-            />
-            <Text style={{ fontSize: 20, }}> {props.name} </Text>
+          <View style={{ flexDirection: 'row', justifyContent:'space-between' }}>
+            <View style={{ flexDirection: 'row'}}>
+              <Avatar 
+                style={{ marginBottom: 10, marginRight: 5 }}
+                name= {data.username}
+              />
+              <Text style={{ fontSize: 20, }}> {data.username} </Text>
+            </View>
+            <PostButton data={data}/>
+              <Modal isVisible={isModalVisible}>
+                  <View >
+                      <Button 
+                        containerStyle={{marginBottom:20}} 
+                        title="Delete Post" 
+                        onPress={() => {deletePost(data.key)}} 
+                      />
+                      <Button 
+                          containerStyle={{marginBottom:20}} 
+                          buttonStyle={{backgroundColor: "red"}} 
+                          title="Close" 
+                          onPress={toggleModal} 
+                      />
+                  </View>
+              </Modal>
           </View>
           <Divider style={{ backgroundColor: 'black' }} />
-          <Text style={{ marginVertical: 10, fontSize: 17 }}> {props.post} </Text>
+          <Text style={{ marginVertical: 10, fontSize: 17 }}> {data.post} </Text>
           <Divider style={{ backgroundColor: 'black' }} />     
-          <Comment data={props.comment} />
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Input 
-              placeholder='Add Comment' 
-              containerStyle={{ width: '90%' }}
-            />
-            <Button
-              onPress={() => { }}
-            >
-              <Feather name='send' size={21} />
-            </Button>
-          </View>
+          <TouchableOpacity 
+              style={{ margin: 10 }} 
+              onPress={() => {
+                props.setPostKey(data.key)
+                props.watchComments(props.classCode, data.key)
+                props.navigation.navigate('Comments')
+              }}
+          >
+            <Text>Comments</Text>
+          </TouchableOpacity>
         </Card>
     );
   }
+
+  const DisplayPost = () => {
+      if(props.posts.length != 0){
+        return(
+          <View style={{flex:1}}>
+              <FlatList 
+                contentContainerStyle={{ paddingBottom: 20}}
+                data={props.posts}
+                renderItem={({item}) => <Post data={item} /> }
+                keyExtractor={post => post.key}
+                refreshing={refreshing}
+                onRefresh={handleRefresh}
+                removeClippedSubviews={false}
+              /> 
+          </View>  
+        );
+      }else{
+        return(
+          <View style={{flex:1}}>
+            <ScrollView
+              contentContainerStyle={{flex:1}}
+              refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={handleRefresh}
+                />
+              }
+            >
+            <Card containerStyle={{ margin: 20, borderRadius:10, padding: 20}}>
+            <Text style={{fontSize:30, textAlign: 'center'}}>
+              Nothing to show
+            </Text>
+          <Divider style={{ backgroundColor: 'black', marginVertical:10, borderWidth:1 }} />     
+            <Text style={{fontSize:20, textAlign: 'center'}}>
+              There is no post that posted yet!
+            </Text>
+            </Card>
+            </ScrollView>
+          </View>
+        );
+      }
+  } 
 
   return (
     <View style={styles.container}>
@@ -119,16 +189,10 @@ const Announcement = (props) => {
             showSoftInputOnFocus={false}
           />
       </View>
-      <View style={{flex:1}}>
-        <FlatList 
-          contentContainerStyle={{ paddingBottom: 20}}
-          data={postData}
-          renderItem={({item}) => <Post props={item} /> }
-          keyExtractor={post => post.id}
-        /> 
-        </View>    
+      <DisplayPost />
     </View>
   );
+
 }
 
 
@@ -143,6 +207,14 @@ const styles = StyleSheet.create({
     height: 40,
     width: 40,
   },
+  icon:{
+      position: 'absolute',
+  },
+  button:{
+      position: 'absolute',
+      right: 5,
+              top: 5,
+  }
 });
 
 

@@ -7,9 +7,13 @@ import { ReactReduxContext } from 'react-redux'
 const initialState = {
     userInfo: { },
     email: '',
+    username: '',
     userClasses: [],
     classCode: '',
-    documentList: []
+    documentList: [],
+    posts: [],
+    postKey: '',
+    comments: [],
 }
 
 //Reducer
@@ -19,12 +23,20 @@ const reducer = (state= initialState, action) => {
             return {...state, userInfo: action.value};
         case "setEmail":
             return {...state, email: action.value};
+        case "setUsername":
+            return {...state, username: action.value};
         case "setUserClasses":
             return {...state, userClasses: action.value};
         case "setClassCode":
             return {...state, classCode: action.value};
         case "setDocumentList":
             return {...state, documentList: action.value};
+        case "setAnnnouncements":
+            return {...state, posts: action.value};
+        case "setPostKey":
+            return {...state, postKey: action.value};
+        case "setComments":
+            return {...state, comments: action.value};
         default:
             return state;
     }
@@ -50,6 +62,13 @@ const setEmail = (email) => {
     }
 }
 
+const setUsername = (username) => {
+    return {
+        type: "setUsername",
+        value: username
+    }
+}
+
 const watchUserInfo = (email) => {
 
     return function(dispatch){
@@ -60,10 +79,13 @@ const watchUserInfo = (email) => {
          query.once('value').then(snapshot => {
             //take user
             var userInfo = snapshot.val()
-            //assign it
             dispatch(setUserInfo(userInfo))
-
-            dispatch(setEmail(email))
+            
+            snapshot.forEach(child => {
+                dispatch(setEmail(child.val().email))
+                dispatch(setUsername(child.val().username))
+            })
+            
         })
 
     }
@@ -81,6 +103,13 @@ const setDocumentList = (documentList) =>{
     return {
         type: "setDocumentList",
         value: documentList
+    }
+}
+
+const setClassCode = (classCode) => {
+    return {
+        type: "setClassCode",
+        value: classCode
     }
 }
 
@@ -153,12 +182,104 @@ const watchDocuments = (classCode) =>{
     }
 }
 
-const setClassCode = (classCode) => {
+const setAnnnouncements = (posts) => {
     return {
-        type: "setClassCode",
-        value: classCode
+        type: "setAnnnouncements",
+        value: posts
     }
 }
 
+const watchAnnouncements = (classCode) => {
 
-export {setUserInfo, watchUserInfo, wathUserClasses, setClassCode, watchDocuments}
+    return function ( dispatch ) {
+
+        const posts = []
+      
+        const classesRef = firebase.database().ref('Classes');
+        const query = classesRef.orderByChild('classCode').equalTo(classCode);
+        return query.once('value').then(snapshot => {
+            const promises = []
+            snapshot.forEach(child => {
+                const ref = firebase.database().ref()
+                .child("Classes/" + child.key + "/Announcements")
+                .once('value', (snapshot) => {
+                snapshot.forEach(snapshotchild =>{
+                    posts.push({
+                        post: snapshotchild.val().post,
+                        username: snapshotchild.val().username,
+                        email: snapshotchild.val().email,
+                        key: snapshotchild.val().key
+                    })
+                })
+            })
+            promises.push(ref)
+            })
+            return Promise.all(promises)
+        }).then(() => {
+            dispatch(setAnnnouncements(posts.reverse()))
+        })
+    }
+
+}
+
+const setPostKey = (postKey) => {
+    return {
+        type: "setPostKey",
+        value: postKey
+    }
+}
+
+const setComments = (comments) => {
+    return {
+        type: "setComments",
+        value: comments
+    }
+}
+
+const watchComments = (classCode, postKey) => {
+
+    return function ( dispatch ) {
+
+        const comments = []
+      
+        const classesRef = firebase.database().ref('Classes');
+        const query = classesRef.orderByChild('classCode').equalTo(classCode);
+        return query.once('value').then(snapshot => {
+            const promises = []
+            snapshot.forEach(child => {
+                const ref = firebase.database().ref()
+                .child("Classes/" + child.key + "/Announcements/" + postKey + '/Comments')
+                .once('value', (snapshot) => {
+                snapshot.forEach(snapshotchild =>{
+                    var data = snapshotchild.val()
+                    console.log(data)
+                    comments.push({
+                        comment: data.comment,
+                        username: data.username,
+                        email: data.email,
+                        postKey: data.postKey,
+                        commentKey: data.commentKey,
+                    })
+                })
+            })
+            promises.push(ref)
+            })
+            return Promise.all(promises)
+        }).then(() => {
+            dispatch(setComments(comments))
+        })
+    }
+
+}
+
+
+export {
+    setUserInfo, 
+    watchUserInfo, 
+    wathUserClasses, 
+    setClassCode, 
+    watchDocuments, 
+    watchAnnouncements,
+    setPostKey,
+    watchComments
+}

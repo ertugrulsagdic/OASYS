@@ -5,7 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { connect } from "react-redux";
-import {watchDocuments} from '../../redux/app-redux'
+import {watchDocuments, watchAnnouncements} from '../../redux/app-redux'
 
 import StudentList from './StudentList'
 import Announcement from '../Announcement'
@@ -24,6 +24,8 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     watchDocuments: (classCode) => {dispatch(watchDocuments(classCode))},
+    watchAnnouncements: (classCode) => {dispatch(watchAnnouncements(classCode))}
+    
   }
 }
 
@@ -70,7 +72,7 @@ const LectureTabs = (props) => {
             name="Announcement" 
             component={Announcement} 
             listeners={{
-              tabPress: () => {console.log('Announcement')}
+              tabPress: () => {props.watchAnnouncements(props.classCode)}
             }}
         />
         <Tab.Screen 

@@ -81,15 +81,6 @@ const SignupScreen = props => {
                  }
              })
 
-
-            
-
-                   
-            
-              
-            
-        
-            
         }
         catch(error){
             console.log(error.toString())    

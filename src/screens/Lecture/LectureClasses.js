@@ -4,7 +4,7 @@ import { Card, Button } from 'react-native-elements';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Modal from 'react-native-modal';
 import { connect } from "react-redux";
-import {setClassCode} from '../../redux/app-redux'
+import {setClassCode, watchAnnouncements} from '../../redux/app-redux'
 
   const mapStateToProps = (state) => {
     return {
@@ -14,7 +14,8 @@ import {setClassCode} from '../../redux/app-redux'
   
   const mapDispatchToProps = (dispatch) => {
     return {
-      setClassCode: (classCode) => {dispatch(setClassCode(classCode))}
+      setClassCode: (classCode) => {dispatch(setClassCode(classCode))},
+      watchAnnouncements: (classCode) => {dispatch(watchAnnouncements(classCode))}
     }
   }
   
@@ -42,6 +43,7 @@ const LectureClasses = (props) => {
                 onPress={
                     () => {
                         props.setClassCode(data.classCode)
+                        props.watchAnnouncements(data.classCode)
                         props.navigation.navigate('Class', { name: data.name.toString() })
                     }
                 }
