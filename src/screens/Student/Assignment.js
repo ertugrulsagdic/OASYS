@@ -1,5 +1,5 @@
 import React,{useState} from "react";
-import { Text, View, StyleSheet, TouchableOpacity, FlatList} from "react-native";
+import { Text, View, StyleSheet, TouchableOpacity, FlatList, Linking} from "react-native";
 import  {Card, Divider, Button} from 'react-native-elements';
 import Icon from "react-native-vector-icons/Entypo";
 import * as firebase from "firebase";
@@ -50,7 +50,7 @@ const mapDispatchToProps = (dispatch) => {
 
     const Post = ({data}) => {
       return(
-            <Card containerStyle={{margin:20, }}>
+        <Card containerStyle={{margin:20, }}>
           <TouchableOpacity  style={{}} onPress={() => {dowloandFile(data.name)}}>
                   <Icon name="text-document" style={styles.icon2}></Icon>
                   <Text style={{marginLeft:50}}>
@@ -70,7 +70,7 @@ const mapDispatchToProps = (dispatch) => {
                         props.watchStudentAssignments(props.classCode, data.key)
                       }}
                  />
-            </Card>
+        </Card>
 
         );
     }

@@ -1,7 +1,8 @@
 import React,{useState} from "react";
-import { Text, View, StyleSheet, FlatList, TouchableOpacity} from "react-native";
+import { Text, View, StyleSheet, FlatList, TouchableOpacity, Linking} from "react-native";
 import  {Card, Input, Divider} from 'react-native-elements';
 import Icon from "react-native-vector-icons/Entypo";
+import * as firebase from "firebase";
 import Avatar from 'react-native-user-avatar';
 import { connect } from "react-redux";
 import {watchUserInfo, wathUserClasses, watchStudentAssignments} from '../../redux/app-redux'
@@ -70,7 +71,7 @@ const mapDispatchToProps = (dispatch) => {
                 containerStyle={{ borderRadius:40, marginLeft:15, marginTop: 5}}
                 wrapperStyle={{flexDirection:'row'}}
                 >
-                <Text style={{marginLeft:10}}> {data.fileName} </Text>
+                <Text style={{marginLeft:10}}> {data.name} </Text>
                 <Icon name="download" style={styles.icon1}></Icon>
             </Card>  
         </TouchableOpacity>  

@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import { Text, StyleSheet, TouchableOpacity, FlatList, Linking} from 'react-native';
 import { Card, Divider, SearchBar } from 'react-native-elements'
 import Entypo from 'react-native-vector-icons/Entypo'
 import * as firebase from "firebase";

@@ -285,35 +285,35 @@ const watchAssignments = (classCode) =>{
 }
 
 const watchStudentAssignments = (classCode, assignmentKey) =>{
-return function ( dispatch ) {
-
-    const assignmentList = []
-  
-    const classesRef = firebase.database().ref('Classes');
-    const query = classesRef.orderByChild('classCode').equalTo(classCode);
-    return query.once('value').then(snapshot => {
-        const promises = []
-        snapshot.forEach(child => {
-            const ref = firebase.database().ref()
-            .child("Classes/" + child.key + "/Assignments/" + assignmentKey + "/StudentAssignments")
-            .once('value', (snapshot) => {
-            snapshot.forEach(snapshotchild =>{
-                assignmentList.push({
-                    comment: snapshotchild.child("comment").val(),
-                    fileName: snapshotchild.child("fileName").val(),
-                    uri: snapshotchild.child("uri").val(),
-                    studentName: snapshotchild.child("studentName").val(),
-                    assignmentKey: snapshotchild.child('assignmentKey').val()
+    return function ( dispatch ) {
+    
+        const assignmentList = []
+      
+        const classesRef = firebase.database().ref('Classes');
+        const query = classesRef.orderByChild('classCode').equalTo(classCode);
+        return query.once('value').then(snapshot => {
+            const promises = []
+            snapshot.forEach(child => {
+                const ref = firebase.database().ref()
+                .child("Classes/" + child.key + "/Assignments/" + assignmentKey + "/StudentAssignments")
+                .once('value', (snapshot) => {
+                snapshot.forEach(snapshotchild =>{
+                    assignmentList.push({
+                        comment: snapshotchild.child("comment").val(),
+                        name: snapshotchild.child("name").val(),
+                        uri: snapshotchild.child("uri").val(),
+                        studentName: snapshotchild.child("studentName").val(),
+                        assignmentKey: snapshotchild.child('assignmentKey').val()
+                    })
                 })
             })
+            promises.push(ref)
+            })
+            return Promise.all(promises)
+        }).then(() => {
+            dispatch(setStudentAssignmentList(assignmentList))
         })
-        promises.push(ref)
-        })
-        return Promise.all(promises)
-    }).then(() => {
-        dispatch(setStudentAssignmentList(assignmentList))
-    })
-}
+    }
 }
 
 const setPostKey = (postKey) => {
