@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { connect } from "react-redux";
+import {watchDocuments, watchAnnouncements} from '../../redux/app-redux'
 
 import Attendance from './Attendance'
 import Announcement from '../Announcement'
@@ -10,14 +11,25 @@ import Documents from './Documents';
 import Assignment from './Assignment';
 import ScanQR from './ScanQR';
 
-import PostQuestion from './PostQuestion';
-import CommentScreen from '../CommentScreen';
-
 const Tab = createBottomTabNavigator();
-const AnnouncementStack = createStackNavigator();
+
+const mapStateToProps = (state) => {
+  return {
+    classCode: state.classCode,
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    watchDocuments: (classCode) => {dispatch(watchDocuments(classCode))},
+    watchAnnouncements: (classCode) => {dispatch(watchAnnouncements(classCode))}
+    
+  }
+}
 
 
-export default function () {
+const StudentTabs = (props) => {
+
   return (
       <Tab.Navigator 
         screenOptions={({ route }) => ({
@@ -60,7 +72,7 @@ export default function () {
             name="Announcement" 
             component={Announcement} 
             listeners={{
-              tabPress: () => {console.log('Announcement')}
+              tabPress: () => {props.watchAnnouncements(props.classCode)}
             }}
           />
         <Tab.Screen 
@@ -91,3 +103,5 @@ export default function () {
       </Tab.Navigator>
   );
 }
+
+export default connect(mapStateToProps, mapDispatchToProps)(StudentTabs)

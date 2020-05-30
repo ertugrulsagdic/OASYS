@@ -345,14 +345,12 @@ const watchComments = (classCode, postKey) => {
                 .child("Classes/" + child.key + "/Announcements/" + postKey + '/Comments')
                 .once('value', (snapshot) => {
                 snapshot.forEach(snapshotchild =>{
-                    var data = snapshotchild.val()
-                    console.log(data)
                     comments.push({
-                        comment: data.comment,
-                        username: data.username,
-                        email: data.email,
-                        postKey: data.postKey,
-                        commentKey: data.commentKey,
+                        comment: snapshotchild.val().comment,
+                        username: snapshotchild.val().username,
+                        email: snapshotchild.val().email,
+                        postKey: snapshotchild.val().postKey,
+                        commentKey: snapshotchild.val().commentKey,
                     })
                 })
             })
@@ -360,7 +358,7 @@ const watchComments = (classCode, postKey) => {
             })
             return Promise.all(promises)
         }).then(() => {
-            dispatch(setComments(comments))
+            dispatch(setComments(comments.reverse()))
         })
     }
 

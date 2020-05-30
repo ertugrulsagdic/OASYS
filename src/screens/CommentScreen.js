@@ -1,12 +1,11 @@
 import React, {useState} from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Modal } from 'react-native';
 import { Card, Divider, Input, Button } from 'react-native-elements';
 import Avatar from 'react-native-user-avatar';
 import Feather from 'react-native-vector-icons/Feather';
 import * as firebase from "firebase";
 import { connect } from "react-redux";
-import {watchAnnouncements, watchComments} from '../redux/app-redux'
-import Modal from 'react-native-modal';
+import {watchComments} from '../redux/app-redux'
 import Entypo from 'react-native-vector-icons/Entypo';
 
 const mapStateToProps = (state) => {
@@ -21,13 +20,20 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    watchAnnouncements: (classCode) => {dispatch(watchAnnouncements(classCode))},
     watchComments: (classCode, postKey) => {dispatch(watchComments(classCode, postKey))}
   }
 }
 
 
 const CommentScreen = (props) => {
+  
+  const [refreshing, setRefreshing] = useState(false)
+
+  const handleRefresh = () => {
+    setRefreshing(true)
+    props.watchComments(props.classCode, props.postKey)
+    setRefreshing(false)
+  }
 
     const [isModalVisible, setModalVisible] = useState(false);
     
@@ -36,9 +42,12 @@ const CommentScreen = (props) => {
     };
 
     const [comment, setComment] = useState("");
+
+    const [commentKey, setCommentKey] = useState("");
+    const [postKey, setPostKey] = useState("");
     
 
-    const deletePost = (postKey, commentKey) => {
+    const deleteComment = (postKey, commentKey) => {
 
       const classesRef = firebase.database().ref('Classes');
       const query = classesRef.orderByChild('classCode').equalTo(props.classCode);
@@ -52,7 +61,7 @@ const CommentScreen = (props) => {
         })
       }).then(
         () => {
-          props.watchComments(props.classCode)
+          props.watchComments(props.classCode, props.postKey)
           setModalVisible(!isModalVisible);
         }
       )
@@ -105,7 +114,11 @@ const CommentScreen = (props) => {
                       size={15} 
                   />
                 }
-                  onPress={toggleModal}
+                  onPress={ () => {
+                    setCommentKey(data.commentKey)
+                    setPostKey(data.postKey)
+                    toggleModal()
+                  }}
             />
           )
         } else {
@@ -129,21 +142,6 @@ const CommentScreen = (props) => {
                       <Text style={{ fontSize: 19, }}> {data.username} </Text>
                   </View>
                   <CommentButton data={data}/>
-              <Modal isVisible={isModalVisible}>
-                  <View >
-                      <Button 
-                        containerStyle={{marginBottom:20}} 
-                        title="Delete Post" 
-                        onPress={() => {deletePost(data.postKey, data.commentKey)}} 
-                      />
-                      <Button 
-                          containerStyle={{marginBottom:20}} 
-                          buttonStyle={{backgroundColor: "red"}} 
-                          title="Close" 
-                          onPress={toggleModal} 
-                      />
-                  </View>
-              </Modal>
                 </View>
                 <Divider style={{ backgroundColor: 'black', marginVertical: 10 }} />
                 <Text style={{ marginVertical: 10, fontSize: 17 }}> {data.comment} </Text>
@@ -153,10 +151,33 @@ const CommentScreen = (props) => {
 
     return(
         <View style={styles.container}>
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={isModalVisible}
+          >
+            <View style={styles.centeredView}>
+              <View style={styles.modalView}>
+                  <Button 
+                    containerStyle={{marginBottom:15}} 
+                    buttonStyle={{width:150}}
+                    title="Delete Comment" 
+                    onPress={() => {deleteComment(postKey, commentKey)}} 
+                  />
+                  <Button 
+                          buttonStyle={{backgroundColor: "red", width:150}} 
+                          title='Cancel' 
+                          onPress={toggleModal} 
+                  />
+              </View>
+            </View>
+          </Modal>
             <FlatList      
                 data={props.comments}
                 renderItem={({item}) => <Comment data={item} /> }
                 keyExtractor={post => post.commentKey}
+                refreshing={refreshing}
+                onRefresh={handleRefresh}
             />   
             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop:10 }}>
             <Input 
@@ -187,7 +208,28 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 5,
                 top: 5,
-    }
+    },
+    centeredView: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      marginTop: 22
+    },
+    modalView: {
+      margin: 20,
+      backgroundColor: "white",
+      borderRadius: 20,
+      padding: 25,
+      alignItems: "center",
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 2
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+      elevation: 5
+    },
 }); 
 
 export default connect(mapStateToProps, mapDispatchToProps)(CommentScreen);
