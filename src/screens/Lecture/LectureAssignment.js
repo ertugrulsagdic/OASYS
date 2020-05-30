@@ -1,6 +1,6 @@
 import React,{useState} from "react";
-import { Text, View, StyleSheet,TouchableOpacity, Alert, FlatList} from "react-native";
-import  {Card, Button} from 'react-native-elements';
+import { Text, View, StyleSheet,TouchableOpacity, Alert, FlatList, ScrollView, RefreshControl } from "react-native";
+import  {Card, Button, Divider} from 'react-native-elements';
 import Icon from "react-native-vector-icons/Entypo";
 import { connect } from "react-redux";
 import {watchUserInfo, wathUserClasses, watchAssignments, watchStudentAssignments, setAssignmentKey} from '../../redux/app-redux'
@@ -56,6 +56,47 @@ const mapDispatchToProps = (dispatch) => {
       props.watchAssignments(props.classCode)
       setRefreshing(false)
   }
+
+  const DisplayAssignments = () => {
+    if(props.assignmentList.length != 0){
+      return(
+        <View style={{flex:1}}>
+             <FlatList 
+                  contentContainerStyle={{ paddingBottom: 20}}
+                  data={props.assignmentList}
+                  renderItem={({item}) => <Post data={item} /> }
+                  keyExtractor={post => post.name}
+                  refreshing={refreshing}
+                  onRefresh={handleRefresh}
+              />    
+        </View>  
+      );
+    }else{
+      return(
+        <View style={{flex:1}}>
+          <ScrollView
+            contentContainerStyle={{flex:1}}
+            refreshControl={
+              <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={handleRefresh}
+              />
+            }
+          >
+          <Card containerStyle={{ margin: 20, borderRadius:10, padding: 20}}>
+          <Text style={{fontSize:30, textAlign: 'center'}}>
+            Nothing to show
+          </Text>
+        <Divider style={{ backgroundColor: 'black', marginVertical:10, borderWidth:1 }} />     
+          <Text style={{fontSize:20, textAlign: 'center'}}>
+            There is no assignment!
+          </Text>
+          </Card>
+          </ScrollView>
+        </View>
+      );
+    }
+} 
   
 
     return (
@@ -70,15 +111,9 @@ const mapDispatchToProps = (dispatch) => {
                           props.navigation.navigate('PostAssignment')
                         }}
                  />
-        <FlatList 
-          contentContainerStyle={{ paddingBottom: 20}}
-          data={props.assignmentList}
-          renderItem={({item}) => <Post data={item} /> }
-          keyExtractor={post => post.name}
-          refreshing={refreshing}
-          onRefresh={handleRefresh}
-        />    
+                 <DisplayAssignments />
       </View>
+      
     );
   }
 

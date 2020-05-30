@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { Text, StyleSheet, TouchableOpacity, FlatList, View, Alert, Linking } from 'react-native';
+import { Text, StyleSheet, TouchableOpacity, FlatList, View, Alert, Linking, ScrollView, RefreshControl } from 'react-native';
 import { Card, Divider, SearchBar, Button } from 'react-native-elements'
 import Entypo from 'react-native-vector-icons/Entypo'
 import * as firebase from "firebase";
@@ -77,6 +77,48 @@ const LectureDocuments = (props) => {
         
     }
 
+
+    const DisplayDocuments = () => {
+        if(props.documentList.length != 0){
+          return(
+            <View style={{flex:1}}>
+               <FlatList
+                        contentContainerStyle={{ paddingBottom: 20}}
+                        data={props.documentList}
+                        renderItem={({item}) => <Document data={item} /> }
+                        keyExtractor={document => document.name}
+                        refreshing={refreshing}
+                        onRefresh={handleRefresh}
+                /> 
+            </View>  
+          );
+        }else{
+          return(
+            <View style={{flex:1}}>
+              <ScrollView
+                contentContainerStyle={{flex:1}}
+                refreshControl={
+                  <RefreshControl
+                      refreshing={refreshing}
+                      onRefresh={handleRefresh}
+                  />
+                }
+              >
+              <Card containerStyle={{ margin: 20, borderRadius:10, padding: 20}}>
+              <Text style={{fontSize:30, textAlign: 'center'}}>
+                Nothing to show
+              </Text>
+            <Divider style={{ backgroundColor: 'black', marginVertical:10, borderWidth:1 }} />     
+              <Text style={{fontSize:20, textAlign: 'center'}}>
+                There is no document!
+              </Text>
+              </Card>
+              </ScrollView>
+            </View>
+          );
+        }
+    } 
+
         return (
             <View style={{flex:1}}>
                 <SearchBar 
@@ -94,16 +136,7 @@ const LectureDocuments = (props) => {
                         () => {props.navigation.navigate('AddDocument')}
                     }
                  />
-                 <View style={{flex:1}}> 
-                    <FlatList
-                        contentContainerStyle={{ paddingBottom: 20}}
-                        data={props.documentList}
-                        renderItem={({item}) => <Document data={item} /> }
-                        keyExtractor={document => document.name}
-                        refreshing={refreshing}
-                        onRefresh={handleRefresh}
-                /> 
-                </View>
+                 <DisplayDocuments />
             </View>
     );
     

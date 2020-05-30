@@ -1,5 +1,5 @@
 import React,{useState} from "react";
-import { Text, View, StyleSheet, TouchableOpacity, FlatList, Linking} from "react-native";
+import { Text, View, StyleSheet, TouchableOpacity, FlatList, Linking, ScrollView, RefreshControl} from "react-native";
 import  {Card, Divider, Button} from 'react-native-elements';
 import Icon from "react-native-vector-icons/Entypo";
 import * as firebase from "firebase";
@@ -26,7 +26,7 @@ const mapDispatchToProps = (dispatch) => {
 
   const Assignment = (props) => {
     
-    props.watchAssignments(props.classCode)
+    const [refreshing, setRefreshing] = useState(false)
 
 
     const dowloandFile = (fileName) =>{
@@ -46,6 +46,13 @@ const mapDispatchToProps = (dispatch) => {
       });
 
     }
+
+    const handleRefresh = () => {
+      setRefreshing(true)
+      props.watchDocuments(props.classCode)
+      setRefreshing(false)
+  }
+
 
 
     const Post = ({data}) => {
@@ -75,14 +82,49 @@ const mapDispatchToProps = (dispatch) => {
         );
     }
 
+    const DisplayAssignments = () => {
+      if(props.assignmentList.length != 0){
+        return(
+          <View style={{flex:1}}>
+               <FlatList 
+                  data={props.assignmentList}
+                  renderItem={({item}) => <Post data={item} /> }
+                  keyExtractor={post => post.name}
+                  refreshing={refreshing}
+                  onRefresh={handleRefresh}
+               />   
+          </View>  
+        );
+      }else{
+        return(
+          <View style={{flex:1}}>
+            <ScrollView
+              contentContainerStyle={{flex:1}}
+              refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={handleRefresh}
+                />
+              }
+            >
+            <Card containerStyle={{ margin: 20, borderRadius:10, padding: 20}}>
+            <Text style={{fontSize:30, textAlign: 'center'}}>
+              Nothing to show
+            </Text>
+          <Divider style={{ backgroundColor: 'black', marginVertical:10, borderWidth:1 }} />     
+            <Text style={{fontSize:20, textAlign: 'center'}}>
+              There is no assignment!
+            </Text>
+            </Card>
+            </ScrollView>
+          </View>
+        );
+      }
+  } 
+    
+
     return (
-      <View>
-        <FlatList 
-          data={props.assignmentList}
-          renderItem={({item}) => <Post data={item} /> }
-          keyExtractor={post => post.name}
-        />    
-      </View>
+      <DisplayAssignments/>
     );
   }
 
