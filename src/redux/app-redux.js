@@ -14,6 +14,9 @@ const initialState = {
     posts: [],
     postKey: '',
     comments: [],
+    assignmentList: [],
+    studentAsignmentList: [],
+    assignmentKey: ''
 }
 
 //Reducer
@@ -37,6 +40,12 @@ const reducer = (state= initialState, action) => {
             return {...state, postKey: action.value};
         case "setComments":
             return {...state, comments: action.value};
+        case "setAssignmentList":
+            return {...state, assignmentList: action.value};
+        case "setStudentAssignmentList":
+            return {...state, studentAsignmentList: action.value};
+        case "setAssignmentKey":
+            return {...state, assignmentKey: action.value};
         default:
             return state;
     }
@@ -112,6 +121,28 @@ const setClassCode = (classCode) => {
         value: classCode
     }
 }
+
+const setAssignmentList = (assignmentList) =>{
+    return {
+        type: "setAssignmentList",
+        value: assignmentList
+    }
+}
+
+const setStudentAssignmentList = (studentAsignmentList) =>{
+    return {
+        type: "setStudentAssignmentList",
+        value: studentAsignmentList
+    }
+}
+
+const setAssignmentKey = (assignmentKey) => {
+    return {
+        type: "setAssignmentKey",
+        value: assignmentKey
+    }
+}
+
 
 const wathUserClasses = (email) => {
 
@@ -219,7 +250,70 @@ const watchAnnouncements = (classCode) => {
             dispatch(setAnnnouncements(posts.reverse()))
         })
     }
+}
 
+const watchAssignments = (classCode) =>{
+    return function ( dispatch ) {
+
+        const assignmentList = []
+      
+        const classesRef = firebase.database().ref('Classes');
+        const query = classesRef.orderByChild('classCode').equalTo(classCode);
+        return query.once('value').then(snapshot => {
+            const promises = []
+            snapshot.forEach(child => {
+                const ref = firebase.database().ref()
+                .child("Classes/" + child.key + "/Assignments")
+                .once('value', (snapshot) => {
+                snapshot.forEach(snapshotchild =>{
+                    assignmentList.push({
+                        name: snapshotchild.child("name").val(),
+                        title: snapshotchild.child("title").val(),
+                        uri: snapshotchild.child("uri").val(),
+                        deadline: snapshotchild.child("deadline").val(),
+                        key: snapshotchild.child("key").val()
+                    })
+                })
+            })
+            promises.push(ref)
+            })
+            return Promise.all(promises)
+        }).then(() => {
+            dispatch(setAssignmentList(assignmentList))
+        })
+    }
+}
+
+const watchStudentAssignments = (classCode, assignmentKey) =>{
+return function ( dispatch ) {
+
+    const assignmentList = []
+  
+    const classesRef = firebase.database().ref('Classes');
+    const query = classesRef.orderByChild('classCode').equalTo(classCode);
+    return query.once('value').then(snapshot => {
+        const promises = []
+        snapshot.forEach(child => {
+            const ref = firebase.database().ref()
+            .child("Classes/" + child.key + "/Assignments/" + assignmentKey + "/StudentAssignments")
+            .once('value', (snapshot) => {
+            snapshot.forEach(snapshotchild =>{
+                assignmentList.push({
+                    comment: snapshotchild.child("comment").val(),
+                    fileName: snapshotchild.child("fileName").val(),
+                    uri: snapshotchild.child("uri").val(),
+                    studentName: snapshotchild.child("studentName").val(),
+                    assignmentKey: snapshotchild.child('assignmentKey').val()
+                })
+            })
+        })
+        promises.push(ref)
+        })
+        return Promise.all(promises)
+    }).then(() => {
+        dispatch(setStudentAssignmentList(assignmentList))
+    })
+}
 }
 
 const setPostKey = (postKey) => {
@@ -281,5 +375,8 @@ export {
     watchDocuments, 
     watchAnnouncements,
     setPostKey,
-    watchComments
+    watchComments,
+    watchAssignments, 
+    watchStudentAssignments, 
+    setAssignmentKey
 }

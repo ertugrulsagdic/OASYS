@@ -1,14 +1,106 @@
-import React, {useState} from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput} from 'react-native';
+import React, {useState, Children} from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert} from 'react-native';
 import { Card, Button, Divider } from 'react-native-elements';
 import ButtonDate from "react-native-button";
 import Entypo from 'react-native-vector-icons/Entypo';
 import { AppStyles } from "../../AppStyles";
 import DatePicker from 'react-native-date-picker'
+import * as firebase from "firebase";
+import { connect } from "react-redux";
+import {watchAssignments} from '../../redux/app-redux'
+import DocumentPicker from 'react-native-document-picker';
 
-const PostAssignment = () => {
+const mapStateToProps = (state) => {
+    return {
+      classCode: state.classCode
+    }
+  }
+  
+  const mapDispatchToProps = (dispatch) => {
+    return {
+      watchAssignments: (classCode) => {dispatch(watchAssignments(classCode))}
+    }
+  }
 
-    const [date, setDate] = useState(new Date())
+const PostAssignment = (props) => {
+
+    const [date, setDate] = useState(new Date());
+    const [singleFileOBJ, setsingleFileOBJ] = useState("");
+    const [title, setTitle] = useState("");
+
+
+    
+    async function SingleFilePicker() {
+        try {
+          const res = await DocumentPicker.pick({
+            type: [DocumentPicker.types.allFiles],
+          
+          });
+
+          setsingleFileOBJ( res)
+     
+     
+        } catch (err) {
+          if (DocumentPicker.isCancel(err)) {
+            Alert.alert('Canceled');
+          } else {
+            Alert.alert('Unknown Error: ' + JSON.stringify(err));
+            throw err;
+          }
+        }
+    }
+
+    async function findClass(uri, fileName){
+
+        ////////////////// find correct class
+        const classesRef = firebase.database().ref('Classes');
+        const query = classesRef.orderByChild('classCode').equalTo(props.classCode);
+        query.once('value').then(snapshot => {
+            snapshot.forEach(child => {
+               createFile(uri, fileName, child.key)
+            })
+
+        })
+    }
+
+    async function createFile(uri, fileName, classKey){
+        /// upload database
+        const rootRef = firebase.database().ref();
+        const fileRef = rootRef.child("Classes/" + classKey + "/Assignments");
+
+
+        fileRef.orderByChild('name').equalTo(fileName).once('value')
+        .then(snapshot => {
+            if(snapshot.exists()){
+                Alert.alert('Document already exists'); 
+            }
+            else{
+                var key = fileRef.push().getKey()
+                console.log(key);
+                fileRef.child(key).set({title: title, deadline: date.toISOString().split('T')[0], name: fileName, uri: uri, key: key })
+                .then(Alert.alert(
+                    "Homework uploaded",
+                    "Homework successfully added",
+                    [
+                    { text: "OK" , onPress: () => {
+                        props.watchAssignments(props.classCode)
+                        props.navigation.navigate('Screens')
+                    }}
+                    ],
+                    { cancelable: false }
+                ));
+            }
+        })
+
+       //// upload storage
+            const response = await fetch(uri);
+            const blob = await response.blob();
+    
+            var ref = firebase.storage().ref().child("Assignments/" + fileName);
+            return ref.put(blob);
+
+    } 
+
 
     return(
         <View style={styles.container}>
@@ -20,6 +112,8 @@ const PostAssignment = () => {
                         placeholder="Enter Title of Document"
                         placeholderTextColor={AppStyles.color.grey}
                         underlineColorAndroid="transparent"
+                        value={title}
+                        onChangeText={title => setTitle(title)}
                     />
                 </View>
                 <Text style={{fontSize:17, marginTop:20, marginBottom:5}}>Description:</Text>
@@ -30,7 +124,7 @@ const PostAssignment = () => {
                 <Divider style={{ backgroundColor: 'black'}} />  
                 <Text style={styles.text}>Please select the file that you want to add</Text>
                 <Divider style={{ backgroundColor: 'black'}} />              
-                <TouchableOpacity>
+                <TouchableOpacity onPress={SingleFilePicker}>
                     <Card containerStyle={styles.cardAdd}>
                         <View style={{flexDirection:'row'}}>
                             <Entypo 
@@ -43,12 +137,15 @@ const PostAssignment = () => {
                              </Text>
                         </View>
                     </Card>
+                    <Text style={{fontSize:20, marginHorizontal:20}}>{"\n"}
+                     {singleFileOBJ.name ? singleFileOBJ.name : ''}</Text>
                 </TouchableOpacity>
                 <Button
                     title='Add'
                     containerStyle={{margin:20, }}
                     buttonStyle={{borderRadius:10,}}
                     color='white'
+                    onPress={() => findClass(singleFileOBJ.uri, singleFileOBJ.name)}
                 />
             </Card>
         </View>
@@ -105,4 +202,4 @@ const styles = StyleSheet.create({
     
 }); 
 
-export default PostAssignment;
+export default connect(mapStateToProps, mapDispatchToProps)(PostAssignment);

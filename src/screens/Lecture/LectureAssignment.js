@@ -1,54 +1,62 @@
-import React from "react";
+import React,{useState} from "react";
 import { Text, View, StyleSheet,TouchableOpacity, Alert, FlatList} from "react-native";
 import  {Card, Button} from 'react-native-elements';
-
 import Icon from "react-native-vector-icons/Entypo";
+import { connect } from "react-redux";
+import {watchUserInfo, wathUserClasses, watchAssignments, watchStudentAssignments, setAssignmentKey} from '../../redux/app-redux'
+
+const mapStateToProps = (state) => {
+  return {
+    classCode: state.classCode,
+    assignmentList: state.assignmentList,
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    watchUserInfo: (email) => {dispatch(watchUserInfo(email))},
+    wathUserClasses: (email) => {dispatch(wathUserClasses(email))},
+    watchAssignments: (classCode) => {dispatch(watchAssignments(classCode))},
+    setAssignmentKey: (assignmentKey) => {dispatch(setAssignmentKey(assignmentKey))},
+    watchStudentAssignments: (classCode, assignmentKey) => {dispatch(watchStudentAssignments(classCode, assignmentKey))},
+  }
+}
 
 
   const LectureAssignment = (props) => {
-    
-    const postData = [
-      {
-        id: '1',
-        name: 'HW1',
-        post: 'Deadline 10 May, 23.30'
-      },
-      {
-        id: '2',
-        name: 'HW2',
-        post: 'Deadline 10 May, 23.30'
-      },
-      {
-        id: '3',
-        name: 'HW3',
-        post: 'Deadline 10 May, 23.30'
-      },
-      {
-        id: '4',
-        name: 'HW4',
-        post: 'Deadline 10 May, 23.30'
-      }
-    ];
-  
- 
-  
+
+    const [refreshing, setRefreshing] = useState(false)
+
     const Post = ({data}) => {
       return(
            <TouchableOpacity   
-              onPress ={() => props.navigation.navigate('Assignments')}
+           onPress={
+            () => {
+                props.navigation.navigate('Assignments')
+                props.setAssignmentKey(data.key)
+                props.watchStudentAssignments(props.classCode, data.key)
+            }
+        }
             >
             <Card containerStyle={{margin:20}}>
                  <Icon name="text-document" style={styles.icon2}></Icon>
                   <Text style={{marginLeft:50}}>
-                     {data.name} 
+                     {data.title} 
                   </Text>
-                  <Text style={{marginLeft:50}}>{data.post}</Text>
+                  <Text style={{marginLeft:50}}>{"Deadline " + data.deadline}</Text>
                   <Icon name="export" style={styles.icon4}></Icon>
             </Card>
             </TouchableOpacity>
 
         );
     }
+
+    const handleRefresh = () => {
+      setRefreshing(true)
+      props.watchAssignments(props.classCode)
+      setRefreshing(false)
+  }
+  
 
     return (
       <View style={{flex:1}}>
@@ -58,14 +66,17 @@ import Icon from "react-native-vector-icons/Entypo";
                     buttonStyle={{borderRadius:10,}}
                     color='white'
                     onPress={
-                        () => {props.navigation.navigate('PostAssignment')}
-                    }
+                        () => {
+                          props.navigation.navigate('PostAssignment')
+                        }}
                  />
         <FlatList 
           contentContainerStyle={{ paddingBottom: 20}}
-          data={postData}
+          data={props.assignmentList}
           renderItem={({item}) => <Post data={item} /> }
-          keyExtractor={post => post.id}
+          keyExtractor={post => post.name}
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
         />    
       </View>
     );
@@ -90,4 +101,5 @@ import Icon from "react-native-vector-icons/Entypo";
           },
        });
   
-     export default LectureAssignment;
+
+       export default connect(mapStateToProps, mapDispatchToProps)(LectureAssignment);

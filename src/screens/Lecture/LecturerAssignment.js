@@ -1,64 +1,76 @@
-import React from "react";
+import React,{useState} from "react";
 import { Text, View, StyleSheet, FlatList, TouchableOpacity} from "react-native";
 import  {Card, Input, Divider} from 'react-native-elements';
 import Icon from "react-native-vector-icons/Entypo";
 import Avatar from 'react-native-user-avatar';
+import { connect } from "react-redux";
+import {watchUserInfo, wathUserClasses, watchStudentAssignments} from '../../redux/app-redux'
 
+const mapStateToProps = (state) => {
+  return {
+    classCode: state.classCode,
+    studentAsignmentList: state.studentAsignmentList
+  }
+}
 
+const mapDispatchToProps = (dispatch) => {
+  return {
+    watchUserInfo: (email) => {dispatch(watchUserInfo(email))},
+    wathUserClasses: (email) => {dispatch(wathUserClasses(email))},
+    watchStudentAssignments: (classCode) => {dispatch(watchStudentAssignments(classCode))}
+  }
+}
 
-  const LecturerAssignment = () => {
+  const LecturerAssignment = (props) => {
 
     const total = 10;
     const submitted = 5;
     const percentage = (submitted/total)
 
-    
-    const postData = [
-      {
-        id: '1',
-        name: 'Melisa Dönmez',
-        filemame: '150116030_Report.pdf'
-      },
-      {
-        id: '2',
-        name: 'Ertugrul Sagdic',
-        filemame: '150116030_Report.pdf'
-      },
-      {
-        id: '3',
-        name: 'Gulce Sirvanci',
-        filemame: '150116030_Report.pdf'
-      },
-      {
-        id: '4',
-        name: 'Berre Ergun',
-        filemame: '150116030_Report.pdf'
-      },
-      {
-        id: '5',
-        name: 'Zeynep Alıcı',
-        filemame: '150116030_Report.pdf'
-      }
-      
-    ];
+    const [refreshing, setRefreshing] = useState(false)
 
-    const Post = ({props}) => {
+    
+    const dowloandFile = (fileName) =>{
+      var ref = firebase.storage().ref().child("StudentAssignments/" + fileName);
+      ref.getDownloadURL().then(function(url) {
+          Linking.canOpenURL(url).then(supported => {
+              if (supported) {
+                Linking.openURL(url);
+              } else {
+                console.log("Don't know how to open URI: " + url);
+              }
+            });
+          
+          console.log(url);
+      }, function(error){
+          console.log(error);
+      });
+
+  }
+
+  const handleRefresh = () => {
+    setRefreshing(true)
+    props.watchStudentAssignments(props.classCode)
+    setRefreshing(false)
+}
+
+    const Post = ({data}) => {
       return(
       <Card containerStyle={{ margin: 20, borderRadius:10, width:'90%'}}>
           <View style={{ flexDirection: 'row' }}>
             <Avatar 
               style={{ marginBottom: 10, marginRight: 5 }}
-              name= {props.name}
+              name= {data.studentName}
             />
-             <Text style={{ fontSize: 15,marginTop:5}}> {props.name} </Text>
+             <Text style={{ fontSize: 15,marginTop:5}}> {data.studentName} </Text>
            </View>
           <Divider style={{ backgroundColor: 'black', marginVertical:10,marginTop:-5 }} />
-        <TouchableOpacity>
+          <TouchableOpacity  style={{}} onPress={() => {dowloandFile(data.name)}}>
             <Card 
                 containerStyle={{ borderRadius:40, marginLeft:15, marginTop: 5}}
                 wrapperStyle={{flexDirection:'row'}}
                 >
-                <Text style={{marginLeft:10}}> {props.filemame} </Text>
+                <Text style={{marginLeft:10}}> {data.fileName} </Text>
                 <Icon name="download" style={styles.icon1}></Icon>
             </Card>  
         </TouchableOpacity>  
@@ -79,9 +91,11 @@ import Avatar from 'react-native-user-avatar';
         </Card>
         <FlatList
         contentContainerStyle={{ paddingBottom: 20}}
-          data={postData}
-          renderItem={({item}) => <Post props={item} /> }
-          keyExtractor={post => post.id}
+          data={props.studentAsignmentList}
+          renderItem={({item}) => <Post data={item} /> }
+          keyExtractor={post => post.name}
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
         />
          
       </View>
@@ -107,4 +121,4 @@ import Avatar from 'react-native-user-avatar';
           },
         });
   
-     export default LecturerAssignment;
+        export default connect(mapStateToProps, mapDispatchToProps)(LecturerAssignment);
