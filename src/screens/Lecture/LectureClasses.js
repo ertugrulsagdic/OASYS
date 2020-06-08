@@ -1,21 +1,24 @@
 import React, {useState} from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert} from 'react-native';
 import { Card, Button } from 'react-native-elements';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Modal from 'react-native-modal';
 import { connect } from "react-redux";
-import {setClassCode, watchAnnouncements} from '../../redux/app-redux'
+import * as firebase from "firebase";
+import {setClassCode, watchAnnouncements, wathUserClasses} from '../../redux/app-redux'
 
   const mapStateToProps = (state) => {
     return {
-        userClasses: state.userClasses
+        userClasses: state.userClasses,
+        email: state.email,
     }
   }
   
   const mapDispatchToProps = (dispatch) => {
     return {
       setClassCode: (classCode) => {dispatch(setClassCode(classCode))},
-      watchAnnouncements: (classCode) => {dispatch(watchAnnouncements(classCode))}
+      watchAnnouncements: (classCode) => {dispatch(watchAnnouncements(classCode))},
+      wathUserClasses: (email) => {dispatch(wathUserClasses(email))}
     }
   }
   
@@ -23,20 +26,49 @@ import {setClassCode, watchAnnouncements} from '../../redux/app-redux'
 const LectureClasses = (props) => {
 
     const [isModalVisible, setModalVisible] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
   
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
 
     const navigateEditClass = (props) => {
-        setModalVisible(!isModalVisible);
         props.navigation.navigate('Edit')
+        setModalVisible(!isModalVisible);
     };
 
-    const deleteClass = () => {
-        setModalVisible(!isModalVisible);
+    const deleteClass = (classCode) => {
+        Alert.alert(
+            'Do you want delete this class',
+            "If yes press OK",
+            [
+            { text: "OK", onPress: () => {deletedClass(classCode)}}
+            ],
+            { cancelable: true }
+        )
+      
     };
+
+    async function deletedClass(classCode){
+            await firebase.database().ref('Classes')
+                .orderByChild('classCode').equalTo(classCode)
+                .once('value').then(snapshot => {
+                snapshot.forEach(child => {
+                const ref = firebase.database().ref().child("Classes/" + child.key).remove().then(
+                    Alert.alert('Class successfully deleted')
+                );
+                })
+                })
+        setModalVisible(!isModalVisible);
+    }
+
+    const handleRefresh = () => {
+        setRefreshing(true)
+        props.wathUserClasses(props.email);
+        setRefreshing(false)
+      }
     
+
     const Class = ({data}) => {
         return(
             <TouchableOpacity 
@@ -55,6 +87,10 @@ const LectureClasses = (props) => {
                         <Button
                             containerStyle={styles.button}
                             type='clear'
+                            onPress={() => {
+                                toggleModal();
+                                props.setClassCode(data.classCode)
+                            }}
                             icon={
                                 <Entypo 
                                     style={styles.icon}
@@ -62,20 +98,25 @@ const LectureClasses = (props) => {
                                     size={15} 
                                 />
                             }
-                            onPress={toggleModal}
+                        
                         />
                         <Modal isVisible={isModalVisible}>
                             <View >
                                 <Button 
                                     containerStyle={{marginBottom:20}} 
                                     title="Edit Class" 
-                                    onPress={() => {navigateEditClass(props)}}
+                                    onPress={() => {
+                                    navigateEditClass(props)
+                                    }
+                                }
                                      
                                 />
                                 <Button 
                                     containerStyle={{marginBottom:20}} 
                                     title="Delete Class" 
-                                    onPress={() => {deleteClass}} 
+                                    onPress={() => {
+                                        deleteClass(data.classCode);
+                                    }} 
                                 />
                                 <Button 
                                     containerStyle={{marginBottom:20}} 
@@ -110,6 +151,8 @@ const LectureClasses = (props) => {
                 data={props.userClasses}
                 renderItem={({item}) => <Class data={item} /> }
                 keyExtractor={post => post.classCode}
+                refreshing={refreshing}
+                onRefresh={handleRefresh}
             />     
         </View>
     );
