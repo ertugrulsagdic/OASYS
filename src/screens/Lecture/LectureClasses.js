@@ -1,8 +1,7 @@
 import React, {useState} from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert} from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Modal} from 'react-native';
 import { Card, Button } from 'react-native-elements';
 import Entypo from 'react-native-vector-icons/Entypo';
-import Modal from 'react-native-modal';
 import { connect } from "react-redux";
 import * as firebase from "firebase";
 import {setClassCode, watchAnnouncements, wathUserClasses} from '../../redux/app-redux'
@@ -27,6 +26,7 @@ const LectureClasses = (props) => {
 
     const [isModalVisible, setModalVisible] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
+    const [classCode, setClassCode] = useState("");
   
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
@@ -60,6 +60,7 @@ const LectureClasses = (props) => {
                 })
                 })
         setModalVisible(!isModalVisible);
+        props.wathUserClasses(props.email);
     }
 
     const handleRefresh = () => {
@@ -71,16 +72,6 @@ const LectureClasses = (props) => {
 
     const Class = ({data}) => {
         return(
-            <TouchableOpacity 
-                onPress={
-                    () => {
-                        props.setClassCode(data.classCode)
-                        props.watchAnnouncements(data.classCode)
-                        props.navigation.navigate('Class', { name: data.name.toString() })
-                    }
-                }
-                
-            >
                 <Card containerStyle={{ borderRadius:10, backgroundColor: data.theme, width:'90%'}}>
                     <View style={{flexDirection:'row', justifyContent:'space-between'}}>
                         <Text style={styles.textName}>{data.name}</Text>
@@ -89,7 +80,7 @@ const LectureClasses = (props) => {
                             type='clear'
                             onPress={() => {
                                 toggleModal();
-                                props.setClassCode(data.classCode)
+                                setClassCode(data.classCode)
                             }}
                             icon={
                                 <Entypo 
@@ -100,38 +91,22 @@ const LectureClasses = (props) => {
                             }
                         
                         />
-                        <Modal isVisible={isModalVisible}>
-                            <View >
-                                <Button 
-                                    containerStyle={{marginBottom:20}} 
-                                    title="Edit Class" 
-                                    onPress={() => {
-                                    navigateEditClass(props)
-                                    }
-                                }
-                                     
-                                />
-                                <Button 
-                                    containerStyle={{marginBottom:20}} 
-                                    title="Delete Class" 
-                                    onPress={() => {
-                                        deleteClass(data.classCode);
-                                    }} 
-                                />
-                                <Button 
-                                    containerStyle={{marginBottom:20}} 
-                                    buttonStyle={{backgroundColor: "red"}} 
-                                    title="Close" 
-                                    onPress={toggleModal} 
-                                />
-                            </View>
-                        </Modal>
                     </View>
+                    <TouchableOpacity 
+                        onPress={
+                            () => {
+                                props.setClassCode(data.classCode)
+                                props.watchAnnouncements(data.classCode)
+                                props.navigation.navigate('Class', { name: data.name.toString() })
+                            }
+                        }
+                        
+                    >
                     <Text style={styles.textField}>{data.courseField}</Text>
                     <Text style={styles.textIns}>{data.instructue}</Text>
                     <Text style={styles.textField}>Classs code: {data.classCode}</Text>
+                    </TouchableOpacity>
                 </Card>
-            </TouchableOpacity>
             
         );
     }
@@ -153,7 +128,38 @@ const LectureClasses = (props) => {
                 keyExtractor={post => post.classCode}
                 refreshing={refreshing}
                 onRefresh={handleRefresh}
-            />     
+            />  
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={isModalVisible}
+            >
+                <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+                        <Button 
+                            containerStyle={{marginBottom:15}} 
+                            buttonStyle={{width:150}}
+                            title="Edit Class" 
+                            onPress={() => {navigateEditClass(props)}}
+                                        
+                        />
+                        <Button 
+                            containerStyle={{marginBottom:15}} 
+                            buttonStyle={{width:150}}
+                            title="Delete Class" 
+                            onPress={() => {
+                                deleteClass(classCode);
+                            }} 
+                        />
+                        <Button 
+                                buttonStyle={{backgroundColor: "red", width:150}} 
+                                title='Cancel' 
+                                onPress={toggleModal} 
+                        />
+                    </View>
+                </View>
+            </Modal>  
+   
         </View>
     );
 };
@@ -182,8 +188,29 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 5,
                 top: 5,
-    }
-    
+    },
+    centeredView: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 22
+      },
+      modalView: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 25,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+          width: 0,
+          height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5
+      },
+
 }); 
 
 export default connect(mapStateToProps, mapDispatchToProps)(LectureClasses);

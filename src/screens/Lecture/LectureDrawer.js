@@ -12,7 +12,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Animated from 'react-native-reanimated';
 import * as firebase from 'firebase'
 import { connect } from "react-redux";
-import {setClassCode} from '../../redux/app-redux'
+import {setClassCode, watchAnnouncements} from '../../redux/app-redux'
 
 import LectureClasses from './LectureClasses';
 import LectureTabs from './LectureTabs';
@@ -33,7 +33,8 @@ const mapStateToProps = (state) => {
   
   const mapDispatchToProps = (dispatch) => {
     return {
-      setClassCode: (classCode) => {dispatch(setClassCode(classCode))}
+      setClassCode: (classCode) => {dispatch(setClassCode(classCode))},
+      watchAnnouncements: (classCode) => {dispatch(watchAnnouncements(classCode))}
     }
   }
 
@@ -90,6 +91,7 @@ const DrawerContent = ({props}) => {
                 onPress={
                     () => {
                         props.setClassCode(data.classCode)
+                        props.watchAnnouncements(data.classCode)
                         props.navigation.navigate('Class', { name: data.name.toString() })
                     }
                 }

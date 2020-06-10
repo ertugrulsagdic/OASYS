@@ -16,7 +16,8 @@ const initialState = {
     comments: [],
     assignmentList: [],
     studentAsignmentList: [],
-    assignmentKey: ''
+    assignmentKey: '',
+    attendanceKey: '',
 }
 
 //Reducer
@@ -46,6 +47,8 @@ const reducer = (state= initialState, action) => {
             return {...state, studentAsignmentList: action.value};
         case "setAssignmentKey":
             return {...state, assignmentKey: action.value};
+        case "setAttendanceKey":
+            return {...state, attendanceKey: action.value};
         default:
             return state;
     }
@@ -364,6 +367,13 @@ const watchComments = (classCode, postKey) => {
 
 }
 
+const setAttendanceKey = (key) => {
+    return {
+        type: "setAttendanceKey",
+        value: key
+    }
+}
+
 
 export {
     setUserInfo, 
@@ -376,5 +386,6 @@ export {
     watchComments,
     watchAssignments, 
     watchStudentAssignments, 
-    setAssignmentKey
+    setAssignmentKey,
+    setAttendanceKey
 }
