@@ -18,6 +18,7 @@ const initialState = {
     studentAsignmentList: [],
     assignmentKey: '',
     attendanceKey: '',
+    studentList: [],
 }
 
 //Reducer
@@ -49,6 +50,8 @@ const reducer = (state= initialState, action) => {
             return {...state, assignmentKey: action.value};
         case "setAttendanceKey":
             return {...state, attendanceKey: action.value};
+        case "setStudentList":
+            return {...state, studentList: action.value};
         default:
             return state;
     }
@@ -146,6 +149,12 @@ const setAssignmentKey = (assignmentKey) => {
     }
 }
 
+const setStudentList = (studentList) => {
+    return {
+        type: "setStudentList",
+        value: studentList
+    }
+}
 
 const wathUserClasses = (email) => {
 
@@ -319,6 +328,34 @@ const watchStudentAssignments = (classCode, assignmentKey) =>{
     }
 }
 
+const watchStudentList = (classCode) =>{
+    return function ( dispatch ) {
+    const studentList = []
+    const userRef = firebase.database().ref('User');
+        return userRef.once('value').then(user => {
+            const promises = []
+            user.forEach(child => {  
+                const ref = firebase.database().ref()
+                .child("User/" + child.key + "/classes")
+                .once('value', (snapshot) => {
+                    snapshot.forEach(snapshotchild =>{
+                        if(classCode == snapshotchild.child("classCode").val() && child.child("userType").val() == 'Student'){
+                            studentList.push({
+                                name:child.child("username").val(),
+                                attended: child.child("attendace").val()
+                            })
+                        }
+                    })
+                })    
+                promises.push(ref)
+            })
+            return Promise.all(promises)
+          }).then(() => {
+            dispatch(setStudentList(studentList))
+          })
+}
+}
+
 const setPostKey = (postKey) => {
     return {
         type: "setPostKey",
@@ -387,5 +424,6 @@ export {
     watchAssignments, 
     watchStudentAssignments, 
     setAssignmentKey,
-    setAttendanceKey
+    setAttendanceKey,
+    watchStudentList
 }
