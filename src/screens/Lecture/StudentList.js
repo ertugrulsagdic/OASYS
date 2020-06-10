@@ -9,7 +9,8 @@ import {watchUserInfo, wathUserClasses, watchStudentList} from '../../redux/app-
 const mapStateToProps = (state) => {
     return {
       classCode: state.classCode,
-      studentList: state.studentList
+      studentList: state.studentList,
+      totalAttendance: state.totalAttendance
     }
   }
   
@@ -38,7 +39,7 @@ const StudentList = (props) => {
 
             const tableHead = ['Total', 'Attended'],
             tableData = [
-              ["20", data.attended]      
+              [props.totalAttendance, data.attended]      
             ]
     
             return(
