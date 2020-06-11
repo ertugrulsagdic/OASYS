@@ -19,6 +19,8 @@ const initialState = {
     assignmentKey: '',
     attendanceKey: '',
     studentList: [],
+    attended: '',
+    totalAttendance: '',
 }
 
 //Reducer
@@ -52,6 +54,10 @@ const reducer = (state= initialState, action) => {
             return {...state, attendanceKey: action.value};
         case "setStudentList":
             return {...state, studentList: action.value};
+        case "setAttended":
+            return {...state, attended: action.value};
+        case "setTotal":
+            return {...state, totalAttendance: action.value};
         default:
             return state;
     }
@@ -84,6 +90,13 @@ const setUsername = (username) => {
     }
 }
 
+const setAttended = (attended) => {
+    return {
+        type: "setAttended",
+        value: attended
+    }
+}
+
 const watchUserInfo = (email) => {
 
     return function(dispatch){
@@ -106,6 +119,28 @@ const watchUserInfo = (email) => {
     }
    
 }
+
+const watchUserAttendance = (classCode) => {
+
+    return function ( dispatch ) {
+        const userRef = firebase.database().ref('User');
+             userRef.once('value').then(user => {
+                user.forEach(child => {  
+                    firebase.database().ref()
+                    .child("User/" + child.key + "/classes")
+                    .once('value', (snapshot) => {
+                        snapshot.forEach(snapshotchild =>{
+                            if(classCode == snapshotchild.child("classCode").val() && child.child("userType").val() == 'Student'){
+                                console.log(snapshotchild)
+                                dispatch(setAttended(snapshotchild.val().attendance))
+                            }
+                        })
+                    })    
+                })
+              })
+    }
+}
+
 
 const setUserClasses = (userClasses) => {
     return {
@@ -342,7 +377,7 @@ const watchStudentList = (classCode) =>{
                         if(classCode == snapshotchild.child("classCode").val() && child.child("userType").val() == 'Student'){
                             studentList.push({
                                 name:child.child("username").val(),
-                                attended: child.child("attendace").val()
+                                attended: snapshotchild.child("attendance").val()
                             })
                         }
                     })
@@ -411,6 +446,40 @@ const setAttendanceKey = (key) => {
     }
 }
 
+const setTotal = (total) => {
+    return {
+        type: "setTotal",
+        value: total
+    }
+}
+
+const watchAttendance = (classCode) => {
+
+    return function ( dispatch ) {
+
+        var totalAttendance = ''
+      
+        const classesRef = firebase.database().ref('Classes');
+        const query = classesRef.orderByChild('classCode').equalTo(classCode);
+        return query.once('value').then(snapshot => {
+            const promises = []
+            snapshot.forEach(child => {
+                const ref = firebase.database().ref()
+                .child("Classes/" + child.key + "/Attendance")
+                .once('value', (snapshot) => {
+                snapshot.forEach(snapshotchild =>{
+                    totalAttendance++
+                })
+            })
+            promises.push(ref)
+            })
+            return Promise.all(promises)
+        }).then(() => {
+            dispatch(setTotal(totalAttendance))
+        })
+    }
+}
+
 
 export {
     setUserInfo, 
@@ -425,5 +494,7 @@ export {
     watchStudentAssignments, 
     setAssignmentKey,
     setAttendanceKey,
-    watchStudentList
+    watchStudentList,
+    watchAttendance,
+    watchUserAttendance
 }

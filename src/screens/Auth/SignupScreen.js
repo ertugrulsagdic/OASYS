@@ -42,7 +42,6 @@ const SignupScreen = props => {
                         username: username.value, 
                         userType: userType, 
                         email: email.value, 
-                        attendace: 0, 
                     }
                     ).then(
                         Alert.alert(

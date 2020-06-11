@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { connect } from "react-redux";
-import {watchDocuments, watchAnnouncements, watchAssignments} from '../../redux/app-redux'
+import {watchDocuments, watchAnnouncements, watchAssignments, watchUserAttendance, watchAttendance} from '../../redux/app-redux'
 
 import Attendance from './Attendance'
 import Announcement from '../Announcement'
@@ -16,6 +16,8 @@ const Tab = createBottomTabNavigator();
 const mapStateToProps = (state) => {
   return {
     classCode: state.classCode,
+    userInfo: state.userInfo,
+    email: state.email,
   }
 }
 
@@ -24,6 +26,8 @@ const mapDispatchToProps = (dispatch) => {
     watchDocuments: (classCode) => {dispatch(watchDocuments(classCode))},
     watchAnnouncements: (classCode) => {dispatch(watchAnnouncements(classCode))},
     watchAssignments: (classCode) => {dispatch(watchAssignments(classCode))},
+    watchUserAttendance: (classCode) => {dispatch(watchUserAttendance(classCode))},
+    watchAttendance: (classCode) => {dispatch(watchAttendance(classCode))}
     
   }
 }
@@ -80,7 +84,10 @@ const StudentTabs = (props) => {
             name="Attendance" 
             component={Attendance}
             listeners={{
-              tabPress: () => {console.log('Attendance')}
+              tabPress: () => {
+                props.watchUserAttendance(props.classCode)
+                props.watchAttendance(props.classCode)
+              }
             }}
         />
         <Tab.Screen 

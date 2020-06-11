@@ -40,7 +40,10 @@ const mapDispatchToProps = (dispatch) => {
                 }
               })
               if(classExists == false){
-                userChild.child('classes').ref.push({classCode: classCode.value})
+                userChild.child('classes').ref.push({
+                    classCode: classCode.value,
+                    attendance: 0,
+                  })
                 Alert.alert(
                   "Class added",
                   "You have successfully added class",

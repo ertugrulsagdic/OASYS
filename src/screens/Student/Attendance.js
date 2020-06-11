@@ -4,19 +4,23 @@ import { Card} from 'react-native-elements'
 import { Table, Row, Rows } from 'react-native-table-component';
 import AnimatedProgressWheel from 'react-native-progress-wheel';
 import { connect } from "react-redux";
-import {watchUserInfo, wathUserClasses} from '../../redux/app-redux'
+import {watchUserAttendance, wathUserClasses, watchAttendance} from '../../redux/app-redux'
 
 const mapStateToProps = (state) => {
     return {
       classCode: state.classCode,
-      userInfo: state.userInfo
+      userInfo: state.userInfo,
+      email: state.email,
+      attended: state.attended,
+      totalAttendance: state.totalAttendance
     }
   }
   
   const mapDispatchToProps = (dispatch) => {
     return {
-      watchUserInfo: (email) => {dispatch(watchUserInfo(email))},
-      wathUserClasses: (email) => {dispatch(wathUserClasses(email))}
+      watchUserAttendance: (classCode) => {dispatch(watchUserAttendance(classCode))},
+      wathUserClasses: (email) => {dispatch(wathUserClasses(email))},
+      watchAttendance: (classCode) => {dispatch(watchAttendance(classCode))}
     }
   }
 
@@ -24,28 +28,22 @@ const mapStateToProps = (state) => {
 const Attendance = (props) => {
 
     const total = 20;
-    const [attended, setAttended] = useState("");
-    const absence = total - attended;
-    const percentage = (attended/total) * 100
+    const absence = props.totalAttendance - props.attended;
+    const percentage = (props.attended/total) * 100
     const [refreshing, setRefreshing] = useState(false);
 
     const state = {
         tableHead: ['Total', 'Attended', 'Absence'],
         tableData: [
-          [total, attended, absence],
+          [props.totalAttendance, props.attended, absence],
           
         ]
     }
 
-    const findStudent = () =>{
-        Object.values(props.userInfo).forEach(child => {
-           setAttended(child.attendace);
-        })
-    }
-
     const handleRefresh = () => {
         setRefreshing(true)
-        findStudent();
+        props.watchUserAttendance(props.classCode)
+        props.watchAttendance(props.classCode)
         setRefreshing(false)
     }
   

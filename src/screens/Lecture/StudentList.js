@@ -4,12 +4,13 @@ import { Card, Divider  } from 'react-native-elements'
 import { Table, Row, Rows } from 'react-native-table-component';
 import Avatar from 'react-native-user-avatar';
 import { connect } from "react-redux";
-import {watchUserInfo, wathUserClasses, watchStudentList} from '../../redux/app-redux'
+import {watchUserInfo, wathUserClasses, watchStudentList, watchAttendance} from '../../redux/app-redux'
 
 const mapStateToProps = (state) => {
     return {
       classCode: state.classCode,
-      studentList: state.studentList
+      studentList: state.studentList,
+      totalAttendance: state.totalAttendance
     }
   }
   
@@ -17,7 +18,8 @@ const mapStateToProps = (state) => {
     return {
       watchUserInfo: (email) => {dispatch(watchUserInfo(email))},
       wathUserClasses: (email) => {dispatch(wathUserClasses(email))},
-      watchStudentList: (classCode) => {dispatch(watchStudentList(classCode))}
+      watchStudentList: (classCode) => {dispatch(watchStudentList(classCode))},
+      watchAttendance: (classCode) => {dispatch(watchAttendance(classCode))}
     }
   }
 
@@ -31,6 +33,7 @@ const StudentList = (props) => {
     const handleRefresh = () => {
         setRefreshing(true)
         props.watchStudentList(props.classCode)
+        props.watchAttendance(props.classCode)
         setRefreshing(false)
     }
 
@@ -38,7 +41,7 @@ const StudentList = (props) => {
 
             const tableHead = ['Total', 'Attended'],
             tableData = [
-              ["20", data.attended]      
+              [props.totalAttendance, data.attended]      
             ]
     
             return(
