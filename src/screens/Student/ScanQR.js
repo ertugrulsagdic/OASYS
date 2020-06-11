@@ -1,87 +1,31 @@
-
-import * as firebase from "firebase";
-import { connect } from "react-redux";
-import React, { useState } from 'react';
+//This is an example code to Scan QR code//
+import React, { Component } from 'react';
 //import react in our code.
-import { Text, View, TouchableHighlight, PermissionsAndroid, Platform, StyleSheet, Alert} from 'react-native';
+import { Text, View, Linking, TouchableHighlight, PermissionsAndroid, Platform, StyleSheet} from 'react-native';
 // import all basic components
 import { CameraKitCameraScreen, } from 'react-native-camera-kit';
 //import CameraKitCameraScreen we are going to use.
-
-const mapStateToProps = (state) => {
-  return {
-    classCode: state.classCode,
-    userInfo: state.userInfo,
-    email: state.email
+export default class ScanQR extends Component {
+  constructor() {
+    super();
+    this.state = {
+      //variable to hold the qr value
+      qrvalue: '',
+      opneScanner: false,
+    };
   }
-}
-
-const mapDispatchToProps = (dispatch) => {
-  return {
+  onOpenlink() {
+    //Function to open URL, If scanned 
+    Linking.openURL(this.state.qrvalue);
+    //Linking used to open the URL in any browser that you have installed
   }
-}
-
- const ScanQR = (props) => {
-
-  const [qrvalue, setQrValue] = useState('')
-  const [opneScanner, setOpneScanner] = useState('')
-
-  const [codeExists, setCodeExists] = useState(false); 
-
-
-  const onBarcodeScan = (qrvalue) => {
+  onBarcodeScan(qrvalue) {
     //called after te successful scanning of QRCode/Barcode
-    setQrValue( qrvalue);
-    setOpneScanner(false);
-
-    
-    const classesRef = firebase.database().ref('Classes');
-    const query = classesRef.orderByChild('classCode').equalTo(props.classCode);
-     query.once('value').then(snapshot => {
-            snapshot.forEach(child => {
-                firebase.database().ref()
-                .child("Classes/" + child.key + "/Attendance")
-                .once('value', (snapshot) => {
-                  snapshot.forEach(child => {
-                    if(child.val().qrCode == qrvalue){
-                      const userRef = firebase.database().ref("User");
-    
-                      const query = userRef.orderByChild('email').equalTo(props.email)
-                      query.once('value').then(snapshot => {
-                          snapshot.forEach(child => {
-                            console.log(child)
-                            const attendance = child.val().attendace
-                            console.log(attendance)
-                            firebase.database().ref().child("User/" + child.key)
-                            .update({
-                                attendace: attendance + 1,
-                            })
-                          }).then(
-                            Alert.alert(
-                              "Attendance Taken",
-                              "You have successfully attended the class",
-                              [
-                              { text: "OK", onPress: () => {
-                                setCodeExists(true)
-                              }}
-                              ],
-                              { cancelable: false }
-                            )
-                          )
-                          
-                      })
-                    }
-                  })
-            }).then(() => {
-              if(codeExists == false){
-                  alert('QR Code is invalid')
-              }
-          })
-        })
-      })
-
+    this.setState({ qrvalue: qrvalue });
+    this.setState({ opneScanner: false });
   }
-  const onOpneScanner = () => {
+  onOpneScanner() {
+    var that =this;
     //To Start Scanning
     if(Platform.OS === 'android'){
       async function requestCameraPermission() {
@@ -94,8 +38,8 @@ const mapDispatchToProps = (dispatch) => {
           )
           if (granted === PermissionsAndroid.RESULTS.GRANTED) {
             //If CAMERA Permission is granted
-              setQrValue( '');
-              setOpneScanner(true);
+            that.setState({ qrvalue: '' });
+            that.setState({ opneScanner: true });
           } else {
             alert("CAMERA permission denied");
           }
@@ -107,19 +51,28 @@ const mapDispatchToProps = (dispatch) => {
       //Calling the camera permission function
       requestCameraPermission();
     }else{
-      setQrValue( '');
-      setOpneScanner(true);
+      that.setState({ qrvalue: '' });
+      that.setState({ opneScanner: true });
     }    
   }
+  render() {
     let displayModal;
     //If qrvalue is set then return this view
-    if (!opneScanner) {
+    if (!this.state.opneScanner) {
       return (
         <View style={styles.container}>
             <Text style={styles.heading}>React Native QR Code Example</Text>
-            <Text style={styles.simpleText}>{qrvalue ? 'Scanned QR Code: '+ qrvalue : ''}</Text>
+            <Text style={styles.simpleText}>{this.state.qrvalue ? 'Scanned QR Code: '+this.state.qrvalue : ''}</Text>
+            {this.state.qrvalue.includes("http") ? 
+              <TouchableHighlight
+                onPress={() => this.onOpenlink()}
+                style={styles.button}>
+                  <Text style={{ color: '#FFFFFF', fontSize: 12 }}>Open Link</Text>
+              </TouchableHighlight>
+              : null
+            }
             <TouchableHighlight
-              onPress={ onOpneScanner}
+              onPress={() => this.onOpneScanner()}
               style={styles.button}>
                 <Text style={{ color: '#FFFFFF', fontSize: 12 }}>
                 Open QR Scanner
@@ -128,7 +81,6 @@ const mapDispatchToProps = (dispatch) => {
         </View>
       );
     }
-    else{
     return (
       <View style={{ flex: 1 }}>
         <CameraKitCameraScreen
@@ -143,13 +95,12 @@ const mapDispatchToProps = (dispatch) => {
           colorForScannerFrame={'black'}
           //Scanner Frame color
           onReadCode={event =>
-            onBarcodeScan(event.nativeEvent.codeStringValue)
+            this.onBarcodeScan(event.nativeEvent.codeStringValue)
           }
         />
       </View>
     );
-        }
-  
+  }
 }
 const styles = StyleSheet.create({
   container: {
@@ -180,5 +131,3 @@ const styles = StyleSheet.create({
     marginTop: 16
   }
 });
-
-export default connect(mapStateToProps, mapDispatchToProps)(ScanQR)

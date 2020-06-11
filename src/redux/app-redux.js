@@ -19,8 +19,6 @@ const initialState = {
     assignmentKey: '',
     attendanceKey: '',
     studentList: [],
-    attended: '',
-    totalAttendance: '',
 }
 
 //Reducer
@@ -54,10 +52,6 @@ const reducer = (state= initialState, action) => {
             return {...state, attendanceKey: action.value};
         case "setStudentList":
             return {...state, studentList: action.value};
-        case "setAttendanceKey":
-            return {...state, attended: action.value};
-        case "setTotal":
-            return {...state, totalAttendance: action.value};
         default:
             return state;
     }
@@ -334,17 +328,9 @@ const watchStudentAssignments = (classCode, assignmentKey) =>{
     }
 }
 
-const setTotal = (total) => {
-    return {
-        type: "setTotal",
-        value: total
-    }
-}
-
 const watchStudentList = (classCode) =>{
     return function ( dispatch ) {
     const studentList = []
-    const total
     const userRef = firebase.database().ref('User');
         return userRef.once('value').then(user => {
             const promises = []
@@ -358,7 +344,6 @@ const watchStudentList = (classCode) =>{
                                 name:child.child("username").val(),
                                 attended: child.child("attendace").val()
                             })
-                            total++
                         }
                     })
                 })    
@@ -367,7 +352,6 @@ const watchStudentList = (classCode) =>{
             return Promise.all(promises)
           }).then(() => {
             dispatch(setStudentList(studentList))
-            dispatch(setTotal(total))
           })
 }
 }
@@ -427,19 +411,6 @@ const setAttendanceKey = (key) => {
     }
 }
 
-const setAttended = (attended) => {
-    return {
-        type: "setAttendanceKey",
-        value: attended
-    }
-}
-
-const findStudent = (userInfo) =>{
-    Object.values(userInfo).forEach(child => {
-        dispatch(setAttended(child.attendace));
-    })
-}
-
 
 export {
     setUserInfo, 
@@ -454,6 +425,5 @@ export {
     watchStudentAssignments, 
     setAssignmentKey,
     setAttendanceKey,
-    watchStudentList,
-    findStudent
+    watchStudentList
 }

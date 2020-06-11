@@ -4,44 +4,48 @@ import { Card} from 'react-native-elements'
 import { Table, Row, Rows } from 'react-native-table-component';
 import AnimatedProgressWheel from 'react-native-progress-wheel';
 import { connect } from "react-redux";
-import {watchUserInfo, wathUserClasses, findStudent} from '../../redux/app-redux'
+import {watchUserInfo, wathUserClasses} from '../../redux/app-redux'
 
 const mapStateToProps = (state) => {
     return {
       classCode: state.classCode,
-      userInfo: state.userInfo,
-      attended: state.attended,
-      totalAttendance: state.totalAttendance
+      userInfo: state.userInfo
     }
   }
   
   const mapDispatchToProps = (dispatch) => {
     return {
       watchUserInfo: (email) => {dispatch(watchUserInfo(email))},
-      wathUserClasses: (email) => {dispatch(wathUserClasses(email))},
-      findStudent: (userInfo) => {dispatch(findStudent(userInfo))}
+      wathUserClasses: (email) => {dispatch(wathUserClasses(email))}
     }
   }
 
 
 const Attendance = (props) => {
 
-    const total = props.totalAttendance;
-    const absence = total - props.attended;
-    const percentage = (props.attended/total) * 100
+    const total = 20;
+    const [attended, setAttended] = useState("");
+    const absence = total - attended;
+    const percentage = (attended/total) * 100
     const [refreshing, setRefreshing] = useState(false);
 
     const state = {
         tableHead: ['Total', 'Attended', 'Absence'],
         tableData: [
-          [total, props.attended, absence],
+          [total, attended, absence],
           
         ]
     }
 
+    const findStudent = () =>{
+        Object.values(props.userInfo).forEach(child => {
+           setAttended(child.attendace);
+        })
+    }
+
     const handleRefresh = () => {
         setRefreshing(true)
-        props.findStudent(props.attended);
+        findStudent();
         setRefreshing(false)
     }
   
