@@ -29,7 +29,7 @@ const Attendance = (props) => {
 
     const total = props.totalAttendance;
     const absence = props.totalAttendance - props.attended;
-    const percentage = (props.attended/total) * 100
+    const percentage = props.totalAttendance==0 ? 0 : (props.attended/total) * 100
     const [refreshing, setRefreshing] = useState(false);
 
     const state = {
