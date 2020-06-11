@@ -35,10 +35,6 @@ const CreateQR = (props) => {
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
-
-  const setQrCodeForAssignment = () => {
-    setModalVisible(!isModalVisible);
-  };
   
   const [valueForQRCode, setValueForQRCode] = useState('')
 
@@ -115,7 +111,7 @@ const CreateQR = (props) => {
                   containerStyle={{marginBottom:15}} 
                   buttonStyle={{width:200}}
                   title="Attandance Taken" 
-                  onPress={() => {setQrCodeForAssignment}} 
+                  onPress={() => {toggleModal}} 
               />
               <Button 
                   buttonStyle={{backgroundColor: "red", width:200}} 
