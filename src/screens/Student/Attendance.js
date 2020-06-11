@@ -27,7 +27,7 @@ const mapStateToProps = (state) => {
 
 const Attendance = (props) => {
 
-    const total = 20;
+    const total = props.totalAttendance;
     const absence = props.totalAttendance - props.attended;
     const percentage = (props.attended/total) * 100
     const [refreshing, setRefreshing] = useState(false);

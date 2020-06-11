@@ -50,11 +50,6 @@ const LectureDocuments = (props) => {
         setRefreshing(false)
     }
 
-     
-    state = {
-        search: '',
-    };
-
     Document = ({data}) =>{
         return(
             <Card containerStyle={{ margin: 20, borderRadius:10, width:'90%'}}>
@@ -121,12 +116,6 @@ const LectureDocuments = (props) => {
 
         return (
             <View style={{flex:1}}>
-                <SearchBar 
-                        placeholder='Search Document'
-                        lightTheme
-                        round
-                        editable={true}
-                /> 
                 <Button
                     title='Add Document'
                     containerStyle={{margin:20, width:'88%'}}

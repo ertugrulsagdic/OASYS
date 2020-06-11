@@ -11,7 +11,7 @@ import AntDesingn from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Animated from 'react-native-reanimated';
 import { connect } from "react-redux";
-import {setClassCode, watchAnnouncements} from '../../redux/app-redux'
+import {setClassCode, watchAnnouncements, watchDocuments, watchAssignments, watchUserAttendance, watchAttendance} from '../../redux/app-redux'
 
 import StudentClasses from './StudentClasses'
 import StudentTabs from './StudentTabs'
@@ -29,7 +29,11 @@ const mapStateToProps = (state) => {
   const mapDispatchToProps = (dispatch) => {
     return {
       setClassCode: (classCode) => {dispatch(setClassCode(classCode))},
-      watchAnnouncements: (classCode) => {dispatch(watchAnnouncements(classCode))}
+      watchAnnouncements: (classCode) => {dispatch(watchAnnouncements(classCode))},
+      watchDocuments: (classCode) => {dispatch(watchDocuments(classCode))},
+    watchAssignments: (classCode) => {dispatch(watchAssignments(classCode))},
+    watchUserAttendance: (classCode) => {dispatch(watchUserAttendance(classCode))},
+    watchAttendance: (classCode) => {dispatch(watchAttendance(classCode))}
     }
   }
 
@@ -83,6 +87,11 @@ const DrawerContent = ({props}) => {
                     () => {
                         props.setClassCode(data.classCode)
                         props.watchAnnouncements(data.classCode)
+                        props.watchAnnouncements(data.classCode)
+                        props.watchAssignments(data.classCode)
+                        props.watchUserAttendance(data.classCode)
+                        props.watchAttendance(data.classCode)
+                        props.watchDocuments(data.classCode)
                         props.navigation.navigate('Class', { name: data.name.toString() })
                     }
                 }

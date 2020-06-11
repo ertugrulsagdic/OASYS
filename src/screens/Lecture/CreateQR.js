@@ -111,7 +111,7 @@ const CreateQR = (props) => {
                   containerStyle={{marginBottom:15}} 
                   buttonStyle={{width:200}}
                   title="Attandance Taken" 
-                  onPress={() => {toggleModal}} 
+                  onPress={toggleModal} 
               />
               <Button 
                   buttonStyle={{backgroundColor: "red", width:200}} 

@@ -10,7 +10,8 @@ import {watchUserInfo, wathUserClasses, watchStudentAssignments} from '../../red
 const mapStateToProps = (state) => {
   return {
     classCode: state.classCode,
-    studentAsignmentList: state.studentAsignmentList
+    studentAsignmentList: state.studentAsignmentList,
+    studentList: state.studentList
   }
 }
 
@@ -24,9 +25,9 @@ const mapDispatchToProps = (dispatch) => {
 
   const LecturerAssignment = (props) => {
 
-    const total = 10;
-    const submitted = 5;
-    const percentage = (submitted/total)
+    const total = props.studentList.length;
+    const submitted = props.studentAsignmentList.length;
+    const percentage = props.studentList.length==0 ? 0 : submitted / total
 
     const [refreshing, setRefreshing] = useState(false)
 

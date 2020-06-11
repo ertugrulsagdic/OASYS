@@ -52,19 +52,6 @@ const mapStateToProps = (state) => {
 
 
 
-    const Header = () => {
-
-        return(
-            <SearchBar 
-                placeholder='Search Document'
-                lightTheme
-                round
-                editable={true}
-            />            
-        );
-    }
-
-
     const Document = ({data}) =>{
         return(
             <Card containerStyle={{ margin: 20, borderRadius:10, width:'90%'}}>
@@ -92,7 +79,6 @@ const mapStateToProps = (state) => {
             <View style={{flex:1}}>
                 <FlatList
                     contentContainerStyle={{paddingBottom:20}}
-                    ListHeaderComponent={Header}
                     data={props.documentList}
                     renderItem={({item}) => <Document data={item} /> }
                     keyExtractor={document => document.name}

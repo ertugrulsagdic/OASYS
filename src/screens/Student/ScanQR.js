@@ -47,16 +47,20 @@ const mapDispatchToProps = (dispatch) => {
                       const userRef = firebase.database().ref("User");
     
                       const query = userRef.orderByChild('email').equalTo(props.email)
-                      query.once('value').then(snapshot => {
-                          snapshot.forEach(child => {
-                            console.log(child)
-                            const attendance = child.val().attendace
-                            console.log(attendance)
-                            firebase.database().ref().child("User/" + child.key)
-                            .update({
-                                attendace: attendance + 1,
+                      query.once('value').then(user => {
+                          user.forEach(child => {
+                            child.child('classes').forEach(snapshotchild => {
+                              if(props.classCode == snapshotchild.child("classCode").val() && child.child("userType").val() == 'Student'){
+                                setCodeExists(true)
+                                const attendance = snapshotchild.val().attendance
+                                firebase.database().ref().child("User/" + child.key + '/classes/' + snapshotchild.key).update({
+                                  attendance: attendance + 1,
+                              })
+                              
+                              }
                             })
-                          }).then(
+                          })
+                        }).then(
                             Alert.alert(
                               "Attendance Taken",
                               "You have successfully attended the class",
@@ -68,8 +72,7 @@ const mapDispatchToProps = (dispatch) => {
                               { cancelable: false }
                             )
                           )
-                          
-                      })
+                         
                     }
                   })
             }).then(() => {
