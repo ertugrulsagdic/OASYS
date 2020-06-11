@@ -5,13 +5,13 @@ import Icon from "react-native-vector-icons/Entypo";
 import * as firebase from "firebase";
 import Avatar from 'react-native-user-avatar';
 import { connect } from "react-redux";
-import {watchUserInfo, wathUserClasses, watchStudentAssignments} from '../../redux/app-redux'
+import {watchUserInfo, wathUserClasses, watchStudentAssignments,watchStudentList} from '../../redux/app-redux'
 
 const mapStateToProps = (state) => {
   return {
     classCode: state.classCode,
     studentAsignmentList: state.studentAsignmentList,
-    studentList: state.studentList
+    studentList: state.studentList,
   }
 }
 
@@ -19,7 +19,8 @@ const mapDispatchToProps = (dispatch) => {
   return {
     watchUserInfo: (email) => {dispatch(watchUserInfo(email))},
     wathUserClasses: (email) => {dispatch(wathUserClasses(email))},
-    watchStudentAssignments: (classCode) => {dispatch(watchStudentAssignments(classCode))}
+    watchStudentAssignments: (classCode) => {dispatch(watchStudentAssignments(classCode))},
+    watchStudentList: (classCode) => {dispatch(watchStudentList(classCode))},
   }
 }
 
@@ -29,9 +30,6 @@ const mapDispatchToProps = (dispatch) => {
     const submitted = props.studentAsignmentList.length;
     const percentage = props.studentList.length==0 ? 0 : submitted / total
 
-    const [refreshing, setRefreshing] = useState(false)
-
-    
     const dowloandFile = (fileName) =>{
       var ref = firebase.storage().ref().child("StudentAssignments/" + fileName);
       ref.getDownloadURL().then(function(url) {
@@ -49,12 +47,6 @@ const mapDispatchToProps = (dispatch) => {
       });
 
   }
-
-  const handleRefresh = () => {
-    setRefreshing(true)
-    props.watchStudentAssignments(props.classCode)
-    setRefreshing(false)
-}
 
     const Post = ({data}) => {
       return(
@@ -96,8 +88,6 @@ const mapDispatchToProps = (dispatch) => {
           data={props.studentAsignmentList}
           renderItem={({item}) => <Post data={item} /> }
           keyExtractor={post => post.name}
-          refreshing={refreshing}
-          onRefresh={handleRefresh}
         />
          
       </View>

@@ -350,7 +350,7 @@ const watchStudentAssignments = (classCode, assignmentKey) =>{
                         name: snapshotchild.child("name").val(),
                         uri: snapshotchild.child("uri").val(),
                         studentName: snapshotchild.child("studentName").val(),
-                        assignmentKey: snapshotchild.child('assignmentKey').val()
+                        assignmentKey: snapshotchild.child("assignmentKey").val()
                     })
                 })
             })

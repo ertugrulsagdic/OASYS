@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { View, StyleSheet, FlatList, Text} from 'react-native';
+import { View, StyleSheet, FlatList, Text, ScrollView, RefreshControl} from 'react-native';
 import { Card, Divider  } from 'react-native-elements'
 import { Table, Row, Rows } from 'react-native-table-component';
 import Avatar from 'react-native-user-avatar';
@@ -63,11 +63,11 @@ const StudentList = (props) => {
                 </View>
             );
         }
-    
-    
-       
-            return (
-                <View>
+
+        const DisplayStudents = () => {
+            if(props.studentList.length != 0){
+                return(
+                    <View>
                     <Card containerStyle={{ margin: 20, borderRadius:10, width:'90%'}}>
                     <FlatList
                         contentContainerStyle={{ paddingBottom: 20}}
@@ -79,7 +79,40 @@ const StudentList = (props) => {
                 />       
                 </Card>  
                 </View>
-               
+                );
+            }
+            else{
+                return(
+                  <View style={{flex:1}}>
+                    <ScrollView
+                      contentContainerStyle={{flex:1}}
+                      refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={handleRefresh}
+                        />
+                      }
+                    >
+                    <Card containerStyle={{ margin: 20, borderRadius:10, padding: 20}}>
+                    <Text style={{fontSize:30, textAlign: 'center'}}>
+                      Nothing to show
+                    </Text>
+                  <Divider style={{ backgroundColor: 'black', marginVertical:10, borderWidth:1 }} />     
+                    <Text style={{fontSize:20, textAlign: 'center'}}>
+                      There is no student!
+                    </Text>
+                    </Card>
+                    </ScrollView>
+                  </View>
+                );
+              }
+
+        }
+    
+    
+       
+            return (
+                <DisplayStudents />
         );
         
     

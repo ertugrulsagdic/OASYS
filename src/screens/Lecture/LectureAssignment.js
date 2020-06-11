@@ -3,7 +3,7 @@ import { Text, View, StyleSheet,TouchableOpacity, Alert, FlatList, ScrollView, R
 import  {Card, Button, Divider} from 'react-native-elements';
 import Icon from "react-native-vector-icons/Entypo";
 import { connect } from "react-redux";
-import {watchUserInfo, wathUserClasses, watchAssignments, watchStudentAssignments, setAssignmentKey} from '../../redux/app-redux'
+import {watchUserInfo, wathUserClasses, watchAssignments, watchStudentAssignments, setAssignmentKey, watchStudentList} from '../../redux/app-redux'
 
 const mapStateToProps = (state) => {
   return {
@@ -19,6 +19,7 @@ const mapDispatchToProps = (dispatch) => {
     watchAssignments: (classCode) => {dispatch(watchAssignments(classCode))},
     setAssignmentKey: (assignmentKey) => {dispatch(setAssignmentKey(assignmentKey))},
     watchStudentAssignments: (classCode, assignmentKey) => {dispatch(watchStudentAssignments(classCode, assignmentKey))},
+    watchStudentList: (classCode) => {dispatch(watchStudentList(classCode))},
   }
 }
 
@@ -35,6 +36,7 @@ const mapDispatchToProps = (dispatch) => {
                 props.navigation.navigate('Assignments')
                 props.setAssignmentKey(data.key)
                 props.watchStudentAssignments(props.classCode, data.key)
+                props.watchStudentList(props.classCode)
             }
         }
             >
