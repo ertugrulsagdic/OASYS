@@ -80,7 +80,7 @@ const LectureClasses = (props) => {
                             type='clear'
                             onPress={() => {
                                 toggleModal();
-                                setClassCode(data.classCode)
+                                props.setClassCode(data.classCode)
                             }}
                             icon={
                                 <Entypo 
